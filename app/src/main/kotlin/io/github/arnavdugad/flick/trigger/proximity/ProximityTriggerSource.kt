@@ -6,7 +6,10 @@ import android.hardware.SensorEvent
 import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import io.github.arnavdugad.flick.core.detect.WaveDetector
+import io.github.arnavdugad.flick.core.model.TriggerTuning
 import io.github.arnavdugad.flick.core.model.TriggerType
+import io.github.arnavdugad.flick.trigger.SourceStatus
+import io.github.arnavdugad.flick.trigger.TriggerSink
 import io.github.arnavdugad.flick.trigger.TriggerSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -23,44 +26,56 @@ class ProximityTriggerSource(context: Context) : TriggerSource, SensorEventListe
         ?: sensorManager?.getDefaultSensor(Sensor.TYPE_PROXIMITY)
 
     private val detector = WaveDetector()
-    private var callback: ((TriggerType) -> Unit)? = null
+    private var sink: TriggerSink? = null
 
     private val _near = MutableStateFlow(false)
 
     /** Live "is something covering the sensor" signal, for the UI. */
     val near: StateFlow<Boolean> = _near.asStateFlow()
 
-    private val _samples = MutableStateFlow(0L)
+    /** Name of the sensor, shown in diagnostics (some phones only offer a virtual one). */
+    val sensorName: String? get() = sensor?.name
 
-    /** Number of readings received since the last start; 0 hints at a virtual/inactive sensor. */
-    val sampleCount: StateFlow<Long> = _samples.asStateFlow()
+    private val _status = MutableStateFlow(if (sensor == null) SourceStatus.NO_HARDWARE else SourceStatus.READY)
+    override val status: StateFlow<SourceStatus> = _status.asStateFlow()
 
     override val triggers: Set<TriggerType> = setOf(TriggerType.PROXIMITY_WAVE)
 
-    override val isAvailable: Boolean get() = sensor != null
+    override fun refreshStatus() = Unit
 
-    override val isRunning: Boolean get() = callback != null
-
-    override fun start(onTrigger: (TriggerType) -> Unit) {
+    override fun start(active: Set<TriggerType>, tuning: (TriggerType) -> TriggerTuning, sink: TriggerSink) {
         val s = sensor ?: return
-        val wasRunning = callback != null
-        callback = onTrigger
+        val t = tuning(TriggerType.PROXIMITY_WAVE)
+        detector.config = WaveDetector.Config(
+            minCoverMs = 30,
+            maxCoverMs = 500 + (t.sensitivity * 1_000).toLong(),
+            cooldownMs = t.cooldownMs,
+        )
+        val wasRunning = this.sink != null
+        this.sink = sink
         if (wasRunning) return
         detector.reset()
-        _samples.value = 0
         val ok = runCatching {
             sensorManager?.registerListener(this, s, SensorManager.SENSOR_DELAY_GAME) == true
         }.getOrDefault(false)
-        if (!ok) callback = null
+        if (ok) {
+            _status.value = SourceStatus.RUNNING
+        } else {
+            this.sink = null
+            _status.value = SourceStatus.ERROR
+        }
     }
 
     override fun stop() {
-        if (callback == null) return
+        if (sink == null) return
         runCatching { sensorManager?.unregisterListener(this) }
-        callback = null
+        sink = null
         detector.reset()
         _near.value = false
+        _status.value = SourceStatus.READY
     }
+
+    override fun level(type: TriggerType): Float = if (_near.value) 1f else 0f
 
     override fun onSensorChanged(event: SensorEvent) {
         val s = sensor ?: return
@@ -68,11 +83,8 @@ class ProximityTriggerSource(context: Context) : TriggerSource, SensorEventListe
         val threshold = if (s.maximumRange > 0f) min(s.maximumRange, NEAR_CM) else 1f
         val isNear = event.values[0] < threshold
         _near.value = isNear
-        _samples.value += 1
         val nowMs = event.timestamp / 1_000_000L
-        if (detector.onSample(isNear, nowMs)) {
-            callback?.invoke(TriggerType.PROXIMITY_WAVE)
-        }
+        if (detector.onSample(isNear, nowMs)) sink?.onTrigger(TriggerType.PROXIMITY_WAVE)
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) = Unit

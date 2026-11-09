@@ -30,6 +30,26 @@ import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material.icons.rounded.Tune
 import androidx.compose.material.icons.rounded.VerticalSplit
 import androidx.compose.material.icons.rounded.Waves
+import androidx.compose.material.icons.automirrored.rounded.RotateLeft
+import androidx.compose.material.icons.automirrored.rounded.RotateRight
+import androidx.compose.material.icons.rounded.ArrowDownward
+import androidx.compose.material.icons.rounded.ArrowUpward
+import androidx.compose.material.icons.rounded.BackHand
+import androidx.compose.material.icons.rounded.DoorFront
+import androidx.compose.material.icons.rounded.Face
+import androidx.compose.material.icons.rounded.Face3
+import androidx.compose.material.icons.rounded.FrontHand
+import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.RecordVoiceOver
+import androidx.compose.material.icons.rounded.RemoveRedEye
+import androidx.compose.material.icons.rounded.ScreenRotation
+import androidx.compose.material.icons.rounded.SentimentVerySatisfied
+import androidx.compose.material.icons.rounded.SignLanguage
+import androidx.compose.material.icons.rounded.SportsMma
+import androidx.compose.material.icons.rounded.ThumbDown
+import androidx.compose.material.icons.rounded.ThumbUp
+import androidx.compose.material.icons.rounded.Vibration
+import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
@@ -38,6 +58,7 @@ import io.github.arnavdugad.flick.core.model.Action
 import io.github.arnavdugad.flick.core.model.Direction
 import io.github.arnavdugad.flick.core.model.GlobalAction
 import io.github.arnavdugad.flick.core.model.MediaCommand
+import io.github.arnavdugad.flick.core.model.TriggerCategory
 import io.github.arnavdugad.flick.core.model.TriggerType
 import kotlin.math.roundToInt
 
@@ -137,13 +158,145 @@ val MediaCommand.labelRes: Int
     }
 
 @Composable
-fun triggerLabel(trigger: TriggerType): String = when (trigger) {
-    TriggerType.PROXIMITY_WAVE -> stringResource(R.string.trigger_proximity_wave)
-    else -> trigger.name.lowercase().replace('_', ' ').replaceFirstChar { it.uppercase() }
-}
+fun triggerLabel(trigger: TriggerType): String = stringResource(trigger.labelRes)
 
-@Suppress("UNUSED_PARAMETER") // Per-trigger icons arrive with the camera/motion triggers in M2.
-fun triggerIcon(trigger: TriggerType): ImageVector = Icons.Rounded.Waves
+@Composable
+fun triggerDescription(trigger: TriggerType): String = stringResource(trigger.descriptionRes)
+
+@get:StringRes
+val TriggerCategory.labelRes: Int
+    get() = when (this) {
+        TriggerCategory.HEAD -> R.string.cat_head
+        TriggerCategory.FACE -> R.string.cat_face
+        TriggerCategory.HAND -> R.string.cat_hand
+        TriggerCategory.PHONE -> R.string.cat_phone
+        TriggerCategory.BUTTON -> R.string.cat_button
+        TriggerCategory.VOICE -> R.string.cat_voice
+    }
+
+@get:StringRes
+val TriggerType.labelRes: Int
+    get() = when (this) {
+        TriggerType.HEAD_TILT_UP -> R.string.t_head_tilt_up
+        TriggerType.HEAD_TILT_DOWN -> R.string.t_head_tilt_down
+        TriggerType.HEAD_TILT_LEFT -> R.string.t_head_tilt_left
+        TriggerType.HEAD_TILT_RIGHT -> R.string.t_head_tilt_right
+        TriggerType.HEAD_TURN_LEFT -> R.string.t_head_turn_left
+        TriggerType.HEAD_TURN_RIGHT -> R.string.t_head_turn_right
+        TriggerType.HEAD_NOD -> R.string.t_head_nod
+        TriggerType.FACE_LONG_BLINK -> R.string.t_face_long_blink
+        TriggerType.FACE_DOUBLE_BLINK -> R.string.t_face_double_blink
+        TriggerType.FACE_MOUTH_OPEN -> R.string.t_face_mouth_open
+        TriggerType.FACE_SMILE -> R.string.t_face_smile
+        TriggerType.FACE_EYEBROW_RAISE -> R.string.t_face_eyebrow_raise
+        TriggerType.HAND_OPEN_PALM -> R.string.t_hand_open_palm
+        TriggerType.HAND_FIST -> R.string.t_hand_fist
+        TriggerType.HAND_THUMBS_UP -> R.string.t_hand_thumbs_up
+        TriggerType.HAND_THUMBS_DOWN -> R.string.t_hand_thumbs_down
+        TriggerType.HAND_VICTORY -> R.string.t_hand_victory
+        TriggerType.HAND_POINTING_UP -> R.string.t_hand_pointing_up
+        TriggerType.HAND_SWIPE_LEFT -> R.string.t_hand_swipe_left
+        TriggerType.HAND_SWIPE_RIGHT -> R.string.t_hand_swipe_right
+        TriggerType.HAND_SWIPE_UP -> R.string.t_hand_swipe_up
+        TriggerType.HAND_SWIPE_DOWN -> R.string.t_hand_swipe_down
+        TriggerType.PROXIMITY_WAVE -> R.string.t_proximity_wave
+        TriggerType.PHONE_TILT_LEFT -> R.string.t_phone_tilt_left
+        TriggerType.PHONE_TILT_RIGHT -> R.string.t_phone_tilt_right
+        TriggerType.PHONE_TILT_FORWARD -> R.string.t_phone_tilt_forward
+        TriggerType.PHONE_TILT_BACK -> R.string.t_phone_tilt_back
+        TriggerType.PHONE_SHAKE -> R.string.t_phone_shake
+        TriggerType.BACK_DOUBLE_KNOCK -> R.string.t_back_double_knock
+        TriggerType.BACK_TRIPLE_KNOCK -> R.string.t_back_triple_knock
+        TriggerType.VOLUME_UP -> R.string.t_volume_up
+        TriggerType.VOLUME_DOWN -> R.string.t_volume_down
+        TriggerType.VOICE_NEXT -> R.string.t_voice_next
+        TriggerType.VOICE_BACK -> R.string.t_voice_back
+        TriggerType.VOICE_LIKE -> R.string.t_voice_like
+        TriggerType.VOICE_PAUSE -> R.string.t_voice_pause
+        TriggerType.VOICE_STOP -> R.string.t_voice_stop
+    }
+
+@get:StringRes
+val TriggerType.descriptionRes: Int
+    get() = when (this) {
+        TriggerType.HEAD_TILT_UP -> R.string.d_head_tilt_up
+        TriggerType.HEAD_TILT_DOWN -> R.string.d_head_tilt_down
+        TriggerType.HEAD_TILT_LEFT -> R.string.d_head_tilt_left
+        TriggerType.HEAD_TILT_RIGHT -> R.string.d_head_tilt_right
+        TriggerType.HEAD_TURN_LEFT -> R.string.d_head_turn_left
+        TriggerType.HEAD_TURN_RIGHT -> R.string.d_head_turn_right
+        TriggerType.HEAD_NOD -> R.string.d_head_nod
+        TriggerType.FACE_LONG_BLINK -> R.string.d_face_long_blink
+        TriggerType.FACE_DOUBLE_BLINK -> R.string.d_face_double_blink
+        TriggerType.FACE_MOUTH_OPEN -> R.string.d_face_mouth_open
+        TriggerType.FACE_SMILE -> R.string.d_face_smile
+        TriggerType.FACE_EYEBROW_RAISE -> R.string.d_face_eyebrow_raise
+        TriggerType.HAND_OPEN_PALM -> R.string.d_hand_open_palm
+        TriggerType.HAND_FIST -> R.string.d_hand_fist
+        TriggerType.HAND_THUMBS_UP -> R.string.d_hand_thumbs_up
+        TriggerType.HAND_THUMBS_DOWN -> R.string.d_hand_thumbs_down
+        TriggerType.HAND_VICTORY -> R.string.d_hand_victory
+        TriggerType.HAND_POINTING_UP -> R.string.d_hand_pointing_up
+        TriggerType.HAND_SWIPE_LEFT -> R.string.d_hand_swipe
+        TriggerType.HAND_SWIPE_RIGHT -> R.string.d_hand_swipe
+        TriggerType.HAND_SWIPE_UP -> R.string.d_hand_swipe
+        TriggerType.HAND_SWIPE_DOWN -> R.string.d_hand_swipe
+        TriggerType.PROXIMITY_WAVE -> R.string.d_proximity_wave
+        TriggerType.PHONE_TILT_LEFT -> R.string.d_phone_tilt_left
+        TriggerType.PHONE_TILT_RIGHT -> R.string.d_phone_tilt_right
+        TriggerType.PHONE_TILT_FORWARD -> R.string.d_phone_tilt_forward
+        TriggerType.PHONE_TILT_BACK -> R.string.d_phone_tilt_back
+        TriggerType.PHONE_SHAKE -> R.string.d_phone_shake
+        TriggerType.BACK_DOUBLE_KNOCK -> R.string.d_back_double_knock
+        TriggerType.BACK_TRIPLE_KNOCK -> R.string.d_back_triple_knock
+        TriggerType.VOLUME_UP -> R.string.d_volume
+        TriggerType.VOLUME_DOWN -> R.string.d_volume
+        TriggerType.VOICE_NEXT -> R.string.d_voice
+        TriggerType.VOICE_BACK -> R.string.d_voice
+        TriggerType.VOICE_LIKE -> R.string.d_voice
+        TriggerType.VOICE_PAUSE -> R.string.d_voice
+        TriggerType.VOICE_STOP -> R.string.d_voice
+    }
+
+fun triggerIcon(trigger: TriggerType): ImageVector = when (trigger) {
+    TriggerType.HEAD_TILT_UP -> Icons.Rounded.ArrowUpward
+    TriggerType.HEAD_TILT_DOWN -> Icons.Rounded.ArrowDownward
+    TriggerType.HEAD_TILT_LEFT -> Icons.AutoMirrored.Rounded.RotateLeft
+    TriggerType.HEAD_TILT_RIGHT -> Icons.AutoMirrored.Rounded.RotateRight
+    TriggerType.HEAD_TURN_LEFT -> Icons.AutoMirrored.Rounded.RotateLeft
+    TriggerType.HEAD_TURN_RIGHT -> Icons.AutoMirrored.Rounded.RotateRight
+    TriggerType.HEAD_NOD -> Icons.Rounded.Face
+    TriggerType.FACE_LONG_BLINK -> Icons.Rounded.VisibilityOff
+    TriggerType.FACE_DOUBLE_BLINK -> Icons.Rounded.RemoveRedEye
+    TriggerType.FACE_MOUTH_OPEN -> Icons.Rounded.RecordVoiceOver
+    TriggerType.FACE_SMILE -> Icons.Rounded.SentimentVerySatisfied
+    TriggerType.FACE_EYEBROW_RAISE -> Icons.Rounded.Face3
+    TriggerType.HAND_OPEN_PALM -> Icons.Rounded.FrontHand
+    TriggerType.HAND_FIST -> Icons.Rounded.SportsMma
+    TriggerType.HAND_THUMBS_UP -> Icons.Rounded.ThumbUp
+    TriggerType.HAND_THUMBS_DOWN -> Icons.Rounded.ThumbDown
+    TriggerType.HAND_VICTORY -> Icons.Rounded.SignLanguage
+    TriggerType.HAND_POINTING_UP -> Icons.Rounded.BackHand
+    TriggerType.HAND_SWIPE_LEFT -> Icons.Rounded.SwipeLeft
+    TriggerType.HAND_SWIPE_RIGHT -> Icons.Rounded.SwipeRight
+    TriggerType.HAND_SWIPE_UP -> Icons.Rounded.SwipeUp
+    TriggerType.HAND_SWIPE_DOWN -> Icons.Rounded.SwipeDown
+    TriggerType.PROXIMITY_WAVE -> Icons.Rounded.Waves
+    TriggerType.PHONE_TILT_LEFT -> Icons.Rounded.ScreenRotation
+    TriggerType.PHONE_TILT_RIGHT -> Icons.Rounded.ScreenRotation
+    TriggerType.PHONE_TILT_FORWARD -> Icons.Rounded.ScreenRotation
+    TriggerType.PHONE_TILT_BACK -> Icons.Rounded.ScreenRotation
+    TriggerType.PHONE_SHAKE -> Icons.Rounded.Vibration
+    TriggerType.BACK_DOUBLE_KNOCK -> Icons.Rounded.DoorFront
+    TriggerType.BACK_TRIPLE_KNOCK -> Icons.Rounded.DoorFront
+    TriggerType.VOLUME_UP -> Icons.AutoMirrored.Rounded.VolumeUp
+    TriggerType.VOLUME_DOWN -> Icons.AutoMirrored.Rounded.VolumeDown
+    TriggerType.VOICE_NEXT -> Icons.Rounded.Mic
+    TriggerType.VOICE_BACK -> Icons.Rounded.Mic
+    TriggerType.VOICE_LIKE -> Icons.Rounded.Mic
+    TriggerType.VOICE_PAUSE -> Icons.Rounded.Mic
+    TriggerType.VOICE_STOP -> Icons.Rounded.Mic
+}
 
 /** Marketing name of an Android API level, for "Needs Android X" hints. */
 fun androidVersionName(sdk: Int): String = when (sdk) {

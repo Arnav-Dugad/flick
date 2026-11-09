@@ -23,6 +23,8 @@ data class EngineState(
     val masterEnabled: Boolean = true,
     val screen: ScreenState = ScreenState(interactive = true, locked = false),
     val practiceMode: Boolean = false,
+    /** Trigger shown on the calibration screen; it listens even if unbound, and no actions run. */
+    val calibrating: TriggerType? = null,
     val foregroundPackage: String? = null,
 ) {
     val status: EngineStatus
@@ -33,9 +35,16 @@ data class EngineState(
             else -> EngineStatus.ACTIVE
         }
 
-    /** Whether trigger sources should be running. Practice mode listens even when paused. */
-    val listening: Boolean
-        get() = status == EngineStatus.ACTIVE || (practiceMode && screen.usable)
+    /** Actions only run for real when active and nobody is practising or calibrating. */
+    val actionsEnabled: Boolean
+        get() = status == EngineStatus.ACTIVE && !practiceMode && calibrating == null
+
+    /** The triggers that should be listening, given the bound ones. */
+    fun wantedTriggers(bound: Set<TriggerType>): Set<TriggerType> {
+        if (!screen.usable) return emptySet()
+        val base = if (status == EngineStatus.ACTIVE || practiceMode) bound else emptySet()
+        return if (calibrating != null) base + calibrating else base
+    }
 }
 
 /** Emitted every time a trigger is recognised, whether or not an action ran. */

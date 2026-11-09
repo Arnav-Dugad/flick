@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Categories -->
+    <string name="cat_head">Head</string>
+    <string name="cat_face">Face</string>
+    <string name="cat_hand">Hand</string>
+    <string name="cat_phone">Phone</string>
+    <string name="cat_button">Buttons</string>
+    <string name="cat_voice">Voice (experimental)</string>
+
+    <!-- Trigger names -->
+    <string name="t_head_tilt_up">Look up</string>
+    <string name="t_head_tilt_down">Look down</string>
+    <string name="t_head_tilt_left">Tilt head left</string>
+    <string name="t_head_tilt_right">Tilt head right</string>
+    <string name="t_head_turn_left">Turn head left</string>
+    <string name="t_head_turn_right">Turn head right</string>
+    <string name="t_head_nod">Nod</string>
+    <string name="t_face_long_blink">Long blink</string>
+    <string name="t_face_double_blink">Double blink</string>
+    <string name="t_face_mouth_open">Open mouth</string>
+    <string name="t_face_smile">Smile</string>
+    <string name="t_face_eyebrow_raise">Raise eyebrows</string>
+    <string name="t_hand_open_palm">Open palm</string>
+    <string name="t_hand_fist">Fist</string>
+    <string name="t_hand_thumbs_up">Thumbs up</string>
+    <string name="t_hand_thumbs_down">Thumbs down</string>
+    <string name="t_hand_victory">Victory sign</string>
+    <string name="t_hand_pointing_up">Point up</string>
+    <string name="t_hand_swipe_left">Air swipe left</string>
+    <string name="t_hand_swipe_right">Air swipe right</string>
+    <string name="t_hand_swipe_up">Air swipe up</string>
+    <string name="t_hand_swipe_down">Air swipe down</string>
+    <string name="t_proximity_wave">Wave over sensor</string>
+    <string name="t_phone_tilt_left">Tilt phone left</string>
+    <string name="t_phone_tilt_right">Tilt phone right</string>
+    <string name="t_phone_tilt_forward">Tilt phone forward</string>
+    <string name="t_phone_tilt_back">Tilt phone back</string>
+    <string name="t_phone_shake">Shake</string>
+    <string name="t_back_double_knock">Double knock</string>
+    <string name="t_back_triple_knock">Triple knock</string>
+    <string name="t_volume_up">Volume up button</string>
+    <string name="t_volume_down">Volume down button</string>
+    <string name="t_voice_next">Say “next”</string>
+    <string name="t_voice_back">Say “back”</string>
+    <string name="t_voice_like">Say “like”</string>
+    <string name="t_voice_pause">Say “pause”</string>
+    <string name="t_voice_stop">Say “stop”</string>
+
+    <!-- How to perform each trigger -->
+    <string name="d_head_tilt_up">Tip your head back a little, as if glancing at the ceiling.</string>
+    <string name="d_head_tilt_down">Dip your chin towards your chest and hold briefly.</string>
+    <string name="d_head_tilt_left">Lean your head towards your left shoulder.</string>
+    <string name="d_head_tilt_right">Lean your head towards your right shoulder.</string>
+    <string name="d_head_turn_left">Turn your head to look left.</string>
+    <string name="d_head_turn_right">Turn your head to look right.</string>
+    <string name="d_head_nod">A quick nod: down and straight back up.</string>
+    <string name="d_face_long_blink">Close both eyes for about half a second.</string>
+    <string name="d_face_double_blink">Blink twice, quickly.</string>
+    <string name="d_face_mouth_open">Open your mouth wide, like saying “ah”.</string>
+    <string name="d_face_smile">Give a big smile.</string>
+    <string name="d_face_eyebrow_raise">Lift both eyebrows, like you\'re surprised.</string>
+    <string name="d_hand_open_palm">Show your open hand to the front camera.</string>
+    <string name="d_hand_fist">Make a fist in front of the camera.</string>
+    <string name="d_hand_thumbs_up">Give the camera a thumbs up.</string>
+    <string name="d_hand_thumbs_down">Give the camera a thumbs down.</string>
+    <string name="d_hand_victory">Index and middle finger up, like a V.</string>
+    <string name="d_hand_pointing_up">Hold up your index finger.</string>
+    <string name="d_hand_swipe">Sweep your hand across the front camera, about 20 cm away.</string>
+    <string name="d_proximity_wave">Wave a hand quickly over the top of your phone, near the front camera.</string>
+    <string name="d_phone_tilt_left">Dip the left edge of your phone, then bring it back.</string>
+    <string name="d_phone_tilt_right">Dip the right edge of your phone, then bring it back.</string>
+    <string name="d_phone_tilt_forward">Tip the top of your phone away from you, then back.</string>
+    <string name="d_phone_tilt_back">Tip the top of your phone towards you, then back.</string>
+    <string name="d_phone_shake">Shake your phone firmly back and forth.</string>
+    <string name="d_back_double_knock">Knock twice on the back of your phone with a fingertip.</string>
+    <string name="d_back_triple_knock">Knock three times on the back of your phone.</string>
+    <string name="d_volume">Press briefly. Hold it to change the volume as usual.</string>
+    <string name="d_voice">Say the word clearly. Recognition happens offline on your phone.</string>
+
+    <!-- Source status -->
+    <string name="src_ready">Ready</string>
+    <string name="src_running">Listening</string>
+    <string name="src_no_hardware">Not available on this phone</string>
+    <string name="src_no_permission_camera">Needs camera access</string>
+    <string name="src_no_permission_mic">Needs microphone access</string>
+    <string name="src_unsupported">Not supported on this phone</string>
+    <string name="src_unsupported_voice">Needs Android 12+ with offline speech recognition</string>
+    <string name="src_busy">Camera in use by another app</string>
+    <string name="src_blocked">Android blocked the camera</string>
+    <string name="src_error">Couldn\'t start</string>
+
+    <!-- Gesture list -->
+    <string name="triggers_title">Gestures</string>
+    <string name="triggers_intro">Pick a gesture, choose what it does, and tune it until it feels right.</string>
+    <string name="trigger_off">Off</string>
+
+    <!-- Gesture detail / calibration -->
+    <string name="detail_does">Does</string>
+    <string name="detail_none">Nothing</string>
+    <string name="detail_turn_off">Turn off</string>
+    <string name="detail_live">Live</string>
+    <plurals name="detail_detected">
+        <item quantity="one">Detected %1$d time</item>
+        <item quantity="other">Detected %1$d times</item>
+    </plurals>
+    <string name="detail_try_it">Try it now. Nothing happens on screen while you\'re here.</string>
+    <string name="detail_tuning">Tuning</string>
+    <string name="detail_sensitivity">Sensitivity</string>
+    <string name="detail_less">Less</string>
+    <string name="detail_more">More</string>
+    <string name="detail_hold">Hold for</string>
+    <string name="detail_cooldown">Wait between gestures</string>
+    <string name="detail_ms">%1$d ms</string>
+    <string name="detail_reset">Reset to defaults</string>
+    <string name="detail_neutral">Set neutral position</string>
+    <string name="detail_neutral_body">Hold your usual position, then tap. Flick also adapts to it slowly on its own.</string>
+    <string name="detail_neutral_done">Neutral position saved</string>
+    <string name="detail_preview_note">Only tracking dots are shown. Camera images are never saved or sent.</string>
+    <string name="detail_grant">Allow</string>
+    <string name="detail_open_app_settings">Open app settings</string>
+    <string name="detail_waiting_face">Looking for your face…</string>
+    <string name="detail_waiting_hand">Show your hand to the front camera…</string>
+    <string name="detail_heard">Heard: “%1$s”</string>
+    <string name="detail_listening">Listening… say the word.</string>
+    <string name="detail_meter_cd">Signal at %1$d%%, fires at %2$d%%</string>
+    <string name="detail_camera_fps">Camera: %1$.0f frames per second</string>
+    <string name="detail_sensor_name">Sensor: %1$s</string>
+    <string name="detail_proximity_virtual">This phone\'s proximity sensor may only react to touch, not a hand passing above it. If nothing happens, use a camera gesture such as Open palm instead.</string>
+    <string name="detail_nod_conflict">With Nod also on, Look up and Look down need a slightly longer hold so they don\'t clash.</string>
+    <string name="detail_volume_hint">While Flick is on, a short press runs the action instead of changing the volume. Calls are never affected.</string>
+    <string name="detail_voice_hint">Experimental. Your phone may play a short sound when listening starts.</string>
+</resources>

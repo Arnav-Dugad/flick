@@ -41,8 +41,11 @@ android {
         debug {
             applicationIdSuffix = ".debug"
             versionNameSuffix = "-debug"
+            ndk { abiFilters += setOf("arm64-v8a", "armeabi-v7a", "x86_64") }
         }
         release {
+            // Phones only: MediaPipe's native libraries dominate APK size.
+            ndk { abiFilters += setOf("arm64-v8a", "armeabi-v7a") }
             isMinifyEnabled = true
             isShrinkResources = true
             proguardFiles(
@@ -63,8 +66,18 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
 
+    androidResources {
+        // MediaPipe memory-maps model bundles straight from the APK.
+        noCompress += "task"
+    }
+
     packaging {
         resources.excludes += setOf("/META-INF/{AL2.0,LGPL2.1}", "/META-INF/versions/9/OSGI-INF/MANIFEST.MF")
+    }
+
+    lint {
+        // Flick is a phone app distributed as an APK; ChromeOS x86 builds aren't a target.
+        disable += "ChromeOsAbiSupport"
     }
 
     testOptions {
@@ -92,6 +105,11 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.datastore.preferences)
+
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.mediapipe.tasks.vision)
 
     implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)

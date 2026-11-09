@@ -147,6 +147,17 @@ fun SettingsScreen(onBack: () -> Unit, onReplayOnboarding: () -> Unit) {
                     )
                 }
             }
+            item { SectionHeader(stringResource(R.string.set_gestures)) }
+            item {
+                FlickCard(contentPadding = PaddingValues(vertical = 8.dp)) {
+                    SwitchRow(
+                        title = stringResource(R.string.set_volume_hold),
+                        body = stringResource(R.string.set_volume_hold_body),
+                        checked = settings.volumeHoldAdjusts,
+                        onChange = { scope.launch { repo.setVolumeHoldAdjusts(it) } },
+                    )
+                }
+            }
             item { SectionHeader(stringResource(R.string.set_setup)) }
             item {
                 FlickCard(contentPadding = PaddingValues(vertical = 8.dp)) {

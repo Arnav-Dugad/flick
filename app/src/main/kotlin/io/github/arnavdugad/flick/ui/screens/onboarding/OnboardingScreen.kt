@@ -14,6 +14,19 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.material3.FilterChip
+import io.github.arnavdugad.flick.core.model.Actions
+import io.github.arnavdugad.flick.trigger.SourceStatus
+import io.github.arnavdugad.flick.ui.components.IconBadge
+import io.github.arnavdugad.flick.ui.components.permission
+import io.github.arnavdugad.flick.ui.components.rememberPermissionRequest
+import io.github.arnavdugad.flick.ui.components.rememberPermissionSnapshot
+import io.github.arnavdugad.flick.ui.components.triggerProblem
+import io.github.arnavdugad.flick.ui.triggerDescription
+import io.github.arnavdugad.flick.ui.triggerIcon
+import io.github.arnavdugad.flick.ui.triggerLabel
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,7 +55,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -381,40 +393,98 @@ private fun EnableStep(enabled: Boolean, onOpenSettings: () -> Unit, onNext: () 
     }
 }
 
+/** Gestures offered as a first try, in order of how universally they work. */
+private val FIRST_GESTURES = listOf(
+    TriggerType.HAND_OPEN_PALM,
+    TriggerType.FACE_SMILE,
+    TriggerType.HEAD_NOD,
+    TriggerType.BACK_DOUBLE_KNOCK,
+    TriggerType.PROXIMITY_WAVE,
+)
+
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 private fun TryStep(onFinish: () -> Unit) {
     val context = LocalContext.current
     val container = context.container
     val engine = container.engine
-    val proximity = container.proximity
-    val covered by proximity.near.collectAsStateWithLifecycle()
-    var detected by remember { mutableIntStateOf(0) }
+    val scope = rememberCoroutineScope()
+    val statuses by engine.statuses.collectAsStateWithLifecycle()
+    val permissions = rememberPermissionSnapshot()
+    val requestPermission = rememberPermissionRequest { engine.refreshSources() }
 
-    DisposableEffect(Unit) {
-        engine.setPracticeMode(true)
-        onDispose { engine.setPracticeMode(false) }
+    val options = remember(statuses) {
+        FIRST_GESTURES.filter { statuses[it] != SourceStatus.NO_HARDWARE && statuses[it] != SourceStatus.UNSUPPORTED }
     }
-    LaunchedEffect(Unit) {
-        engine.events.collect { if (it.trigger == TriggerType.PROXIMITY_WAVE) detected++ }
+    var selected by rememberSaveable { mutableStateOf(TriggerType.HAND_OPEN_PALM) }
+    var detected by remember(selected) { mutableIntStateOf(0) }
+
+    LifecycleResumeEffect(selected) {
+        engine.setCalibrating(selected)
+        engine.refreshSources()
+        onPauseOrDispose { engine.setCalibrating(null) }
+    }
+    LaunchedEffect(selected) {
+        engine.events.collect { if (it.trigger == selected) detected++ }
     }
 
     StepLayout(
-        illustration = { WaveIllustration(it, pulseKey = detected, sensorCovered = covered) },
+        illustration = { m ->
+            if (selected == TriggerType.PROXIMITY_WAVE) {
+                WaveIllustration(m, pulseKey = detected)
+            } else {
+                Box(m, contentAlignment = Alignment.Center) {
+                    IconBadge(
+                        triggerIcon(selected),
+                        size = 160.dp,
+                        container = if (detected > 0) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.primaryContainer,
+                        content = if (detected > 0) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
+            }
+        },
         title = stringResource(R.string.onb_try_title),
         primaryLabel = stringResource(R.string.action_finish),
-        onPrimary = onFinish,
+        onPrimary = {
+            scope.launch {
+                container.settings.setBinding(selected, Actions.Next)
+                onFinish()
+            }
+        },
     ) {
-        if (!proximity.isAvailable) {
-            BodyText(stringResource(R.string.onb_try_no_sensor))
+        BodyText(stringResource(R.string.onb_try_body))
+        Spacer(Modifier.height(16.dp))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            for (t in options) {
+                FilterChip(
+                    selected = t == selected,
+                    onClick = { selected = t },
+                    label = { Text(triggerLabel(t)) },
+                    leadingIcon = { Icon(triggerIcon(t), null, Modifier.size(18.dp)) },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                )
+            }
+        }
+        Spacer(Modifier.height(16.dp))
+        Text(triggerDescription(selected), style = MaterialTheme.typography.bodyLarge)
+        Spacer(Modifier.height(16.dp))
+
+        val needsPermission = !permissions.granted(selected)
+        if (needsPermission) {
+            Text(
+                stringResource(R.string.onb_try_camera),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(Modifier.height(8.dp))
+            Button(
+                onClick = { selected.permission?.let(requestPermission) },
+                modifier = Modifier.heightIn(min = 48.dp),
+            ) { Text(stringResource(R.string.detail_grant)) }
             return@StepLayout
         }
-        BodyText(stringResource(R.string.onb_try_body))
-        Spacer(Modifier.height(20.dp))
-        val status = if (detected > 0) {
-            stringResource(R.string.onb_try_success, detected)
-        } else {
-            stringResource(R.string.onb_try_waiting)
-        }
+
+        val problem = triggerProblem(selected, statuses[selected], permissions)
         Surface(
             color = if (detected > 0) MaterialTheme.colorScheme.tertiaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
             shape = MaterialTheme.shapes.medium,
@@ -431,7 +501,11 @@ private fun TryStep(onFinish: () -> Unit) {
                     Spacer(Modifier.width(10.dp))
                 }
                 Text(
-                    status,
+                    when {
+                        detected > 0 -> stringResource(R.string.onb_try_success, detected)
+                        problem != null -> problem
+                        else -> stringResource(R.string.onb_try_waiting)
+                    },
                     style = MaterialTheme.typography.titleMedium,
                     color = if (detected > 0) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
                 )

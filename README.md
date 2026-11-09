@@ -2,14 +2,14 @@
 
 **Control any app hands-free.** Flick turns a nod, a smile, a wave or a knock into a swipe, a tap or a like, in the apps you choose. Free, open source, no ads, no accounts, no tracking. Everything runs on your phone.
 
-> 🚧 **Work in progress.** Milestone 1 (core engine + "wave to scroll") is done. See [docs/PLAN.md](docs/PLAN.md) for the roadmap and [docs/RESEARCH.md](docs/RESEARCH.md) for the research behind it.
+> 🚧 **Work in progress.** Milestones 1–2 (core engine, all trigger types, live calibration) are done. See [docs/PLAN.md](docs/PLAN.md) for the roadmap and [docs/RESEARCH.md](docs/RESEARCH.md) for the research behind it.
 
 ## Status
 
 | Milestone | What | State |
 |---|---|---|
 | M1 | Accessibility engine, every action, proximity "wave to scroll" | ✅ |
-| M2 | Head, face, hand, phone, volume-key and voice triggers + calibration | ⏳ |
+| M2 | Head, face, hand, phone, volume-key and voice triggers + calibration | ✅ (camera-over-other-apps pending on-device check) |
 | M3 | Per-app profiles with smart defaults | ⏳ |
 | M4 | Auto-scroll, floating controller, macros, QS tile, mindful mode, privacy badge | ⏳ |
 | M5 | In-app updates from GitHub Releases | ⏳ |

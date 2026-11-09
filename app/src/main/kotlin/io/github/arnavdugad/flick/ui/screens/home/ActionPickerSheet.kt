@@ -38,7 +38,7 @@ import io.github.arnavdugad.flick.ui.components.SectionHeader
 @Composable
 fun ActionPickerSheet(
     title: String,
-    selected: Action,
+    selected: Action?,
     onSelect: (Action) -> Unit,
     onDismiss: () -> Unit,
 ) {

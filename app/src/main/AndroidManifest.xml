@@ -4,7 +4,15 @@
 
     <!-- Haptic feedback when a gesture fires. -->
     <uses-permission android:name="android.permission.VIBRATE" />
+    <!-- Head, face and hand gestures. Frames are analysed in memory and never stored or sent. -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <!-- Experimental offline voice keywords. Audio is recognised on-device. -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.front" android:required="false" />
+    <uses-feature android:name="android.hardware.microphone" android:required="false" />
+    <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" />
     <uses-feature android:name="android.hardware.sensor.proximity" android:required="false" />
     <uses-feature android:name="android.hardware.touchscreen" android:required="false" />
 

@@ -16,6 +16,9 @@ import io.github.arnavdugad.flick.ui.screens.home.HomeScreen
 import io.github.arnavdugad.flick.ui.screens.lab.ActionLabScreen
 import io.github.arnavdugad.flick.ui.screens.onboarding.OnboardingScreen
 import io.github.arnavdugad.flick.ui.screens.settings.SettingsScreen
+import io.github.arnavdugad.flick.ui.screens.triggers.TriggerDetailScreen
+import io.github.arnavdugad.flick.ui.screens.triggers.TriggersScreen
+import io.github.arnavdugad.flick.core.model.TriggerType
 import io.github.arnavdugad.flick.ui.theme.FlickMotion
 import kotlinx.serialization.Serializable
 
@@ -30,6 +33,12 @@ data object ActionLabKey : NavKey
 
 @Serializable
 data object SettingsKey : NavKey
+
+@Serializable
+data object TriggersKey : NavKey
+
+@Serializable
+data class TriggerDetailKey(val type: TriggerType) : NavKey
 
 @Composable
 fun FlickNavigation(startWithOnboarding: Boolean) {
@@ -67,7 +76,18 @@ fun FlickNavigation(startWithOnboarding: Boolean) {
                 HomeScreen(
                     onOpenLab = { backStack.add(ActionLabKey) },
                     onOpenSettings = { backStack.add(SettingsKey) },
+                    onOpenTriggers = { backStack.add(TriggersKey) },
+                    onOpenTrigger = { backStack.add(TriggerDetailKey(it)) },
                 )
+            }
+            entry<TriggersKey> {
+                TriggersScreen(
+                    onBack = { backStack.removeAt(backStack.lastIndex) },
+                    onOpenTrigger = { backStack.add(TriggerDetailKey(it)) },
+                )
+            }
+            entry<TriggerDetailKey> { key ->
+                TriggerDetailScreen(type = key.type, onBack = { backStack.removeAt(backStack.lastIndex) })
             }
             entry<ActionLabKey> {
                 ActionLabScreen(onBack = { backStack.removeAt(backStack.lastIndex) })

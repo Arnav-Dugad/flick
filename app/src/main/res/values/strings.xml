@@ -47,13 +47,7 @@
     <string name="onb_enable_steps"><![CDATA[In Settings, open <b>Flick</b> (it may be under <i>Installed apps</i> or <i>Downloaded apps</i>), switch it on, then tap <b>Allow</b>.]]></string>
     <string name="onb_enable_waiting">Waiting for Flick to be switched on…</string>
     <string name="onb_enable_ready">Flick is on</string>
-
-    <string name="onb_try_title">Try your first gesture</string>
-    <string name="onb_try_body">Wave your hand over the top of your phone, near the front camera, like you\'re wiping it.</string>
-    <string name="onb_try_waiting">Waiting for a wave…</string>
     <string name="onb_try_success">Nice, that\'s a wave! Detected %1$d×</string>
-    <string name="onb_try_footer">By default a wave goes to the next item, like the next reel. You can change this any time.</string>
-    <string name="onb_try_no_sensor">Your phone doesn\'t expose a proximity sensor, so the wave trigger isn\'t available. Camera and motion gestures arrive in the next update.</string>
 
     <!-- Home -->
     <string name="home_on_title">Flick is on</string>
@@ -67,30 +61,15 @@
     <string name="home_setup_body">Flick is switched off in Accessibility settings, so gestures can\'t control other apps yet.</string>
     <string name="home_service_dead_title">Flick was stopped by the system</string>
     <string name="home_service_dead_body">It\'s on in Settings but not running. Turn it off and on again in Accessibility settings. Battery savers on some phones do this.</string>
-    <string name="home_wave_title">Wave to scroll</string>
-    <string name="home_wave_body">Wave a hand over the top of your phone</string>
-    <string name="home_wave_action_label">Does</string>
-    <string name="home_sensor_near">Sensor covered</string>
-    <string name="home_sensor_clear">Sensor clear</string>
-    <string name="home_sensor_missing">No proximity sensor on this phone</string>
     <string name="home_try_title">Try a gesture</string>
-    <string name="home_try_body">Practise without anything happening on screen.</string>
     <string name="home_try_start">Start practice</string>
     <string name="home_try_stop">Stop practice</string>
-    <plurals name="home_try_count">
-        <item quantity="one">%1$d wave so far</item>
-        <item quantity="other">%1$d waves so far</item>
-    </plurals>
-    <string name="home_last_event">Last: %1$s → %2$s</string>
-    <string name="home_last_event_practice">Last: %1$s (practice)</string>
     <string name="home_tools_title">Tools</string>
     <string name="home_lab_title">Action lab</string>
     <string name="home_lab_body">Test every action Flick can perform</string>
     <string name="home_settings_body">Appearance, feedback and about</string>
-    <string name="pick_action_title">When you wave…</string>
 
     <!-- Triggers -->
-    <string name="trigger_proximity_wave">Wave</string>
 
     <!-- Actions -->
     <string name="act_next">Next (swipe up)</string>
@@ -162,4 +141,31 @@
     <string name="set_source">Source code</string>
     <string name="set_license">Licence</string>
     <string name="set_license_value">Apache License 2.0</string>
+
+    <!-- M2: onboarding first gesture -->
+    <string name="onb_try_title">Pick your first gesture</string>
+    <string name="onb_try_body">Choose one and try it right now. It will go to the next item, like the next reel. You can add more later.</string>
+    <string name="onb_try_waiting">Try it now…</string>
+    <string name="onb_try_footer">You can change what it does, or add more gestures, any time.</string>
+    <string name="onb_try_camera">This gesture uses the front camera. Frames are analysed in memory and never saved.</string>
+
+    <!-- M2: home -->
+    <string name="home_try_body">Practise your gestures without anything happening on screen.</string>
+    <string name="home_try_waiting">Waiting for a gesture…</string>
+    <string name="home_gestures_title">Your gestures</string>
+    <string name="home_gestures_empty">No gestures set up yet. Add one to start.</string>
+    <string name="home_gestures_manage">Add or change gestures</string>
+    <string name="home_perm_camera_title">Allow camera access</string>
+    <string name="home_perm_camera_body">Some of your gestures use the front camera. Frames are analysed in memory and never saved or sent.</string>
+    <string name="home_perm_mic_title">Allow microphone access</string>
+    <string name="home_perm_mic_body">Voice gestures listen for a few words, recognised offline on your phone.</string>
+    <string name="home_camera_blocked_title">Android is blocking the camera</string>
+    <string name="home_camera_blocked_body">Camera gestures can\'t run while another app is open on this phone. Your other gestures keep working.</string>
+    <string name="home_camera_busy_body">Another app is using the camera. Camera gestures pause and resume automatically.</string>
+    <string name="home_samsung_tip">On Samsung: Settings › Apps › Flick › Battery › Unrestricted, and make sure Flick isn\'t in “Sleeping apps” or “Deep sleeping apps”.</string>
+
+    <!-- M2: settings -->
+    <string name="set_gestures">Gestures</string>
+    <string name="set_volume_hold">Hold volume keys to change volume</string>
+    <string name="set_volume_hold_body">When a volume key is a gesture, holding it still changes the volume.</string>
 </resources>
