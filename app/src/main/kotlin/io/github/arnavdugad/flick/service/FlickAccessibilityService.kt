@@ -8,6 +8,11 @@ import android.view.accessibility.AccessibilityEvent
 import io.github.arnavdugad.flick.action.ActionExecutor
 import io.github.arnavdugad.flick.container
 import io.github.arnavdugad.flick.engine.ServiceBridge
+import io.github.arnavdugad.flick.overlay.OverlayController
+import io.github.arnavdugad.flick.system.FlickTileService
+import io.github.arnavdugad.flick.system.StatusNotifier
+import android.content.ComponentName
+import android.service.quicksettings.TileService
 
 /**
  * Thin Android entry point. All logic lives in FlickEngine; this class only connects the engine to
@@ -17,12 +22,17 @@ import io.github.arnavdugad.flick.engine.ServiceBridge
 class FlickAccessibilityService : AccessibilityService(), ServiceBridge {
 
     private val actionExecutor by lazy { ActionExecutor(this) }
+    private var overlays: OverlayController? = null
+    private var notifier: StatusNotifier? = null
 
     override val executor: ActionExecutor get() = actionExecutor
 
     override fun onServiceConnected() {
         super.onServiceConnected()
         container.engine.attach(this)
+        overlays = OverlayController(this).also { it.start() }
+        notifier = StatusNotifier(this).also { it.start() }
+        TileService.requestListeningState(this, ComponentName(this, FlickTileService::class.java))
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
@@ -57,6 +67,10 @@ class FlickAccessibilityService : AccessibilityService(), ServiceBridge {
     }
 
     private fun release() {
+        overlays?.stop()
+        overlays = null
+        notifier?.stop()
+        notifier = null
         container.engine.detach(this)
     }
 }

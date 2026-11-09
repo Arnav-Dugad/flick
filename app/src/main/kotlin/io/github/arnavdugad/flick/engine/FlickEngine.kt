@@ -8,7 +8,11 @@ import io.github.arnavdugad.flick.action.ActionExecutor
 import io.github.arnavdugad.flick.core.model.Action
 import io.github.arnavdugad.flick.core.model.TriggerType
 import io.github.arnavdugad.flick.core.profiles.ForegroundTracker
+import io.github.arnavdugad.flick.core.profiles.ProfileKind
 import io.github.arnavdugad.flick.core.profiles.ProfileResolver
+import io.github.arnavdugad.flick.feature.autoscroll.AutoScrollStatus
+import io.github.arnavdugad.flick.feature.autoscroll.AutoScroller
+import io.github.arnavdugad.flick.trigger.camera.FaceTriggerSource
 import io.github.arnavdugad.flick.data.FlickSettings
 import io.github.arnavdugad.flick.data.SettingsRepository
 import io.github.arnavdugad.flick.feedback.Haptics
@@ -26,6 +30,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -51,6 +56,8 @@ class FlickEngine(
     private val haptics: Haptics,
     private val sources: List<TriggerSource>,
     private val volumeKeys: VolumeKeyTriggerSource,
+    private val face: FaceTriggerSource,
+    val autoScroller: AutoScroller,
     private val scope: CoroutineScope,
     /** Flick's own package: nothing ever runs while Flick itself is in front. */
     private val ownPackage: String,
@@ -100,17 +107,32 @@ class FlickEngine(
 
     private val sink = TriggerSink { type -> main.post { onTrigger(type) } }
 
-    /** The plan: which triggers each source should run, plus the tuning it was computed with. */
-    private data class Plan(val wanted: Set<TriggerType>, val settings: FlickSettings)
+    /**
+     * The plan: which triggers each source should run, the tuning it was computed with, and whether
+     * the face tracker must run for auto-scroll's "pause when you look away" (profile apps only).
+     */
+    private data class Plan(val wanted: Set<TriggerType>, val settings: FlickSettings, val faceTracking: Boolean)
 
     init {
         scope.launch {
-            combine(state, settings.settings) { st, s -> Plan(st.wantedTriggers(ProfileResolver.allTriggers(s.profiles)), s) }
+            combine(state, settings.settings, autoScroller.status) { st, s, scroll ->
+                val faceTracking = scroll != AutoScrollStatus.OFF && s.autoScroll.pauseOnFaceAway &&
+                    st.screen.usable && st.activeProfile?.kind == ProfileKind.APPS
+                Plan(st.wantedTriggers(ProfileResolver.allTriggers(s.profiles)), s, faceTracking)
+            }
                 .distinctUntilChanged { a, b ->
                     a.wanted == b.wanted && a.settings.tuning == b.settings.tuning &&
-                        a.settings.volumeHoldAdjusts == b.settings.volumeHoldAdjusts
+                        a.settings.volumeHoldAdjusts == b.settings.volumeHoldAdjusts && a.faceTracking == b.faceTracking
                 }
                 .collect(::apply)
+        }
+        autoScroller.executor = { bridge.value?.executor }
+        // Auto-scroll belongs to one app: stop it when the app changes, the screen sleeps or Flick pauses.
+        scope.launch {
+            state.map { it.status to it.foregroundPackage }.distinctUntilChanged().collect { (status, _) ->
+                // Any change of app or status ends auto-scroll; starting it never changes either.
+                if (autoScroller.isActive || status != EngineStatus.ACTIVE) autoScroller.stop()
+            }
         }
         scope.launch { settings.settings.collect { latestSettings = it } }
     }
@@ -119,13 +141,16 @@ class FlickEngine(
         volumeKeys.holdAdjustsVolume = plan.settings.volumeHoldAdjusts
         for (source in sources) {
             val wanted = source.triggers intersect plan.wanted
-            if (wanted.isEmpty()) {
+            if (source === face && wanted.isEmpty() && plan.faceTracking) {
+                source.start(emptySet(), plan.settings::tuningFor, sink)
+            } else if (wanted.isEmpty()) {
                 source.stop()
             } else {
                 source.start(wanted, plan.settings::tuningFor, sink)
             }
         }
         bridge.value?.setKeyEventFiltering(volumeKeys.triggers.any { it in plan.wanted })
+        autoScroller.facePresent = if (plan.faceTracking) face.facePresent else null
     }
 
     fun attach(serviceBridge: ServiceBridge) {
@@ -188,8 +213,26 @@ class FlickEngine(
         sources.forEach { it.refreshStatus() }
     }
 
-    /** Runs an action directly (Action lab). Returns false if the service is not connected. */
-    suspend fun runAction(action: Action): Boolean = bridge.value?.executor?.execute(action) ?: false
+    /** Runs an action directly (Action lab, floating controller). False if the service is off. */
+    suspend fun runAction(action: Action): Boolean = when (action) {
+        Action.PauseFlick -> {
+            settings.setMasterEnabled(false)
+            true
+        }
+        Action.AutoScroll -> {
+            autoScroller.toggle()
+            true
+        }
+        is Action.RunMacro -> {
+            val macro = latestSettings.macro(action.macroId)
+            val ex = bridge.value?.executor
+            macro != null && ex != null && ex.playMacro(macro)
+        }
+        else -> bridge.value?.executor?.execute(action) ?: false
+    }
+
+    /** The executor while the accessibility service is connected (overlays, macro recorder). */
+    val executor: ActionExecutor? get() = bridge.value?.executor
 
     private fun onTrigger(trigger: TriggerType) {
         val current = state.value
@@ -206,6 +249,15 @@ class FlickEngine(
                 Action.PauseFlick -> {
                     settings.setMasterEnabled(false)
                     true
+                }
+                Action.AutoScroll -> {
+                    autoScroller.toggle()
+                    true
+                }
+                is Action.RunMacro -> {
+                    val macro = s.macro(toRun.macroId)
+                    val ex = bridge.value?.executor
+                    macro != null && ex != null && ex.playMacro(macro)
                 }
                 else -> bridge.value?.executor?.execute(toRun) ?: false
             }

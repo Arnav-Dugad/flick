@@ -16,6 +16,9 @@ import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
+import io.github.arnavdugad.flick.ui.screens.features.AutoScrollScreen
+import io.github.arnavdugad.flick.ui.screens.features.MacrosScreen
+import io.github.arnavdugad.flick.ui.screens.features.MindfulScreen
 import io.github.arnavdugad.flick.ui.screens.home.HomeScreen
 import io.github.arnavdugad.flick.ui.screens.lab.ActionLabScreen
 import io.github.arnavdugad.flick.ui.screens.onboarding.OnboardingScreen
@@ -46,6 +49,15 @@ data class TriggerDetailKey(val type: TriggerType, val profileId: String? = null
 
 @Serializable
 data class ProfileKey(val id: String) : NavKey
+
+@Serializable
+data object AutoScrollKey : NavKey
+
+@Serializable
+data object MacrosKey : NavKey
+
+@Serializable
+data object MindfulKey : NavKey
 
 @Composable
 fun FlickNavigation(startWithOnboarding: Boolean) {
@@ -94,8 +106,14 @@ private fun FlickNavDisplay(backStack: NavBackStack<NavKey>) {
                     onOpenSettings = { backStack.add(SettingsKey) },
                     onOpenLibrary = { backStack.add(TriggersKey) },
                     onOpenProfile = { backStack.add(ProfileKey(it)) },
+                    onOpenAutoScroll = { backStack.add(AutoScrollKey) },
+                    onOpenMacros = { backStack.add(MacrosKey) },
+                    onOpenMindful = { backStack.add(MindfulKey) },
                 )
             }
+            entry<AutoScrollKey> { AutoScrollScreen(onBack = { backStack.removeAt(backStack.lastIndex) }) }
+            entry<MacrosKey> { MacrosScreen(onBack = { backStack.removeAt(backStack.lastIndex) }) }
+            entry<MindfulKey> { MindfulScreen(onBack = { backStack.removeAt(backStack.lastIndex) }) }
             entry<TriggersKey> {
                 TriggersScreen(
                     onBack = { backStack.removeAt(backStack.lastIndex) },

@@ -51,6 +51,7 @@ import androidx.compose.material.icons.rounded.ThumbUp
 import androidx.compose.material.icons.rounded.Vibration
 import androidx.compose.material.icons.rounded.VisibilityOff
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import io.github.arnavdugad.flick.R
@@ -61,6 +62,9 @@ import io.github.arnavdugad.flick.core.model.MediaCommand
 import io.github.arnavdugad.flick.core.model.TriggerCategory
 import io.github.arnavdugad.flick.core.model.TriggerType
 import kotlin.math.roundToInt
+
+/** Macro id → name, provided at the root so action labels can show macro names. */
+val LocalMacroNames = staticCompositionLocalOf<Map<String, String>> { emptyMap() }
 
 @Composable
 fun actionLabel(action: Action): String = when (action) {
@@ -91,7 +95,8 @@ fun actionLabel(action: Action): String = when (action) {
     is Action.Global -> stringResource(action.action.labelRes)
     is Action.Media -> stringResource(action.command.labelRes)
     Action.AutoScroll -> stringResource(R.string.act_auto_scroll)
-    is Action.RunMacro -> stringResource(R.string.act_run_macro)
+    is Action.RunMacro -> LocalMacroNames.current[action.macroId]?.let { stringResource(R.string.act_run_macro_named, it) }
+        ?: stringResource(R.string.act_run_macro)
     Action.PauseFlick -> stringResource(R.string.act_pause_flick)
 }
 

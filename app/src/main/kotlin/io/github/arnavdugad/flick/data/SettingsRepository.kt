@@ -8,6 +8,9 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import io.github.arnavdugad.flick.core.autoscroll.AutoScrollSettings
+import io.github.arnavdugad.flick.core.macro.Macro
+import io.github.arnavdugad.flick.core.mindful.MindfulSettings
 import io.github.arnavdugad.flick.core.model.Action
 import io.github.arnavdugad.flick.core.model.TriggerSpecs
 import io.github.arnavdugad.flick.core.model.TriggerTuning
@@ -38,10 +41,25 @@ data class FlickSettings(
     val tuning: Map<TriggerType, TriggerTuning> = emptyMap(),
     /** Holding a volume key that is bound as a gesture still changes the volume. */
     val volumeHoldAdjusts: Boolean = true,
+    /** A soft glow around the screen edge when a gesture fires. */
+    val edgeGlow: Boolean = true,
+    /** A small badge while the camera is in use; tapping it pauses Flick. */
+    val privacyBadge: Boolean = true,
+    /** Show tracking dots in the privacy badge. */
+    val trackingPreview: Boolean = false,
+    /** Floating mini-controller over other apps. */
+    val bubble: Boolean = false,
+    /** Ongoing notification with pause / auto-scroll controls. */
+    val statusNotification: Boolean = false,
+    val autoScroll: AutoScrollSettings = AutoScrollSettings(),
+    val mindful: MindfulSettings = MindfulSettings(),
+    val macros: List<Macro> = emptyList(),
 ) {
     fun tuningFor(type: TriggerType): TriggerTuning = TriggerSpecs.tuningFor(type, tuning)
 
     fun profile(id: String): Profile? = profiles.firstOrNull { it.id == id }
+
+    fun macro(id: String): Macro? = macros.firstOrNull { it.id == id }
 }
 
 private val Context.settingsStore: DataStore<Preferences> by preferencesDataStore(name = "settings")
@@ -52,6 +70,7 @@ class SettingsRepository(context: Context) {
     private val json = Json { ignoreUnknownKeys = true }
     private val bindingsSerializer = MapSerializer(TriggerType.serializer(), Action.serializer())
     private val profilesSerializer = ListSerializer(Profile.serializer())
+    private val macrosSerializer = ListSerializer(Macro.serializer())
     private val tuningSerializer = MapSerializer(TriggerType.serializer(), TriggerTuning.serializer())
 
     private object Keys {
@@ -67,6 +86,14 @@ class SettingsRepository(context: Context) {
         val legacyBindings = stringPreferencesKey("bindings")
         val tuning = stringPreferencesKey("tuning")
         val volumeHoldAdjusts = booleanPreferencesKey("volume_hold_adjusts")
+        val edgeGlow = booleanPreferencesKey("edge_glow")
+        val privacyBadge = booleanPreferencesKey("privacy_badge")
+        val trackingPreview = booleanPreferencesKey("tracking_preview")
+        val bubble = booleanPreferencesKey("bubble")
+        val statusNotification = booleanPreferencesKey("status_notification")
+        val autoScroll = stringPreferencesKey("auto_scroll")
+        val mindful = stringPreferencesKey("mindful")
+        val macros = stringPreferencesKey("macros")
 
         /** M1 single binding; migrated into [bindings] on first read. */
         val legacyWaveAction = stringPreferencesKey("wave_action")
@@ -88,6 +115,17 @@ class SettingsRepository(context: Context) {
                 tuning = p[Keys.tuning]?.let { decode(it) { s -> json.decodeFromString(tuningSerializer, s) } }
                     ?: defaults.tuning,
                 volumeHoldAdjusts = p[Keys.volumeHoldAdjusts] ?: defaults.volumeHoldAdjusts,
+                edgeGlow = p[Keys.edgeGlow] ?: defaults.edgeGlow,
+                privacyBadge = p[Keys.privacyBadge] ?: defaults.privacyBadge,
+                trackingPreview = p[Keys.trackingPreview] ?: defaults.trackingPreview,
+                bubble = p[Keys.bubble] ?: defaults.bubble,
+                statusNotification = p[Keys.statusNotification] ?: defaults.statusNotification,
+                autoScroll = p[Keys.autoScroll]?.let { decode(it) { s -> json.decodeFromString(AutoScrollSettings.serializer(), s) } }
+                    ?: defaults.autoScroll,
+                mindful = p[Keys.mindful]?.let { decode(it) { s -> json.decodeFromString(MindfulSettings.serializer(), s) } }
+                    ?: defaults.mindful,
+                macros = p[Keys.macros]?.let { decode(it) { s -> json.decodeFromString(macrosSerializer, s) } }
+                    ?: defaults.macros,
             )
         }
 
@@ -120,6 +158,35 @@ class SettingsRepository(context: Context) {
     suspend fun setDynamicColor(value: Boolean) = store.edit { it[Keys.dynamicColor] = value }
     suspend fun setHaptics(value: Boolean) = store.edit { it[Keys.haptics] = value }
     suspend fun setVolumeHoldAdjusts(value: Boolean) = store.edit { it[Keys.volumeHoldAdjusts] = value }
+    suspend fun setEdgeGlow(value: Boolean) = store.edit { it[Keys.edgeGlow] = value }
+    suspend fun setPrivacyBadge(value: Boolean) = store.edit { it[Keys.privacyBadge] = value }
+    suspend fun setTrackingPreview(value: Boolean) = store.edit { it[Keys.trackingPreview] = value }
+    suspend fun setBubble(value: Boolean) = store.edit { it[Keys.bubble] = value }
+    suspend fun setStatusNotification(value: Boolean) = store.edit { it[Keys.statusNotification] = value }
+    suspend fun setAutoScroll(value: AutoScrollSettings) =
+        store.edit { it[Keys.autoScroll] = json.encodeToString(AutoScrollSettings.serializer(), value.sanitized()) }
+    suspend fun setMindful(value: MindfulSettings) =
+        store.edit { it[Keys.mindful] = json.encodeToString(MindfulSettings.serializer(), value) }
+
+    private fun readMacros(p: Preferences): List<Macro> =
+        p[Keys.macros]?.let { decode(it) { s -> json.decodeFromString(macrosSerializer, s) } }.orEmpty()
+
+    /** Inserts or replaces a macro (matched by id). */
+    suspend fun upsertMacro(macro: Macro) = store.edit { p ->
+        val list = readMacros(p)
+        val updated = if (list.any { it.id == macro.id }) list.map { if (it.id == macro.id) macro else it } else list + macro
+        p[Keys.macros] = json.encodeToString(macrosSerializer, updated)
+    }
+
+    /** Deletes a macro and removes it from every profile that used it. */
+    suspend fun deleteMacro(id: String) {
+        store.edit { p -> p[Keys.macros] = json.encodeToString(macrosSerializer, readMacros(p).filterNot { it.id == id }) }
+        editProfiles { list ->
+            list.map { prof ->
+                prof.copy(bindings = prof.bindings.filterValues { !(it is Action.RunMacro && it.macroId == id) })
+            }
+        }
+    }
 
     /** Inserts or replaces a profile (matched by id). */
     suspend fun upsertProfile(profile: Profile) = editProfiles { list ->

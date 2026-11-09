@@ -25,6 +25,9 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.rounded.Gesture
+import androidx.compose.material.icons.rounded.KeyboardDoubleArrowDown
+import androidx.compose.material.icons.rounded.PlayCircle
+import androidx.compose.material.icons.rounded.SelfImprovement
 import androidx.compose.material3.Switch
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.res.pluralStringResource
@@ -107,6 +110,9 @@ fun HomeScreen(
     onOpenSettings: () -> Unit,
     onOpenLibrary: () -> Unit,
     onOpenProfile: (String) -> Unit,
+    onOpenAutoScroll: () -> Unit,
+    onOpenMacros: () -> Unit,
+    onOpenMindful: () -> Unit,
 ) {
     val context = LocalContext.current
     val vm: HomeViewModel = viewModel { HomeViewModel(context.container) }
@@ -281,6 +287,30 @@ fun HomeScreen(
             }
 
             item(key = "tools") { SectionHeader(stringResource(R.string.home_tools_title)) }
+            item(key = "autoscroll") {
+                ToolRow(
+                    title = stringResource(R.string.as_title),
+                    body = stringResource(R.string.home_tools_autoscroll_body),
+                    icon = Icons.Rounded.KeyboardDoubleArrowDown,
+                    onClick = onOpenAutoScroll,
+                )
+            }
+            item(key = "macros") {
+                ToolRow(
+                    title = stringResource(R.string.mac_title),
+                    body = stringResource(R.string.home_tools_macros_body),
+                    icon = Icons.Rounded.PlayCircle,
+                    onClick = onOpenMacros,
+                )
+            }
+            item(key = "mindful") {
+                ToolRow(
+                    title = stringResource(R.string.mind_title),
+                    body = stringResource(R.string.home_tools_mindful_body),
+                    icon = Icons.Rounded.SelfImprovement,
+                    onClick = onOpenMindful,
+                )
+            }
             item(key = "library") {
                 ToolRow(
                     title = stringResource(R.string.home_library_title),

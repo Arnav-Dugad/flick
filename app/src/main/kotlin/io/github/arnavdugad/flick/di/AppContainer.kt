@@ -5,6 +5,9 @@ import android.view.inputmethod.InputMethodManager
 import io.github.arnavdugad.flick.data.AppInfoRepository
 import io.github.arnavdugad.flick.data.SettingsRepository
 import io.github.arnavdugad.flick.engine.FlickEngine
+import io.github.arnavdugad.flick.feature.autoscroll.AutoScroller
+import io.github.arnavdugad.flick.feature.macro.MacroRecording
+import io.github.arnavdugad.flick.feature.mindful.MindfulMonitor
 import io.github.arnavdugad.flick.feedback.Haptics
 import io.github.arnavdugad.flick.system.ScreenStateMonitor
 import io.github.arnavdugad.flick.trigger.camera.FaceTriggerSource
@@ -45,6 +48,10 @@ class AppContainer(val app: Application) {
 
     val apps: AppInfoRepository by lazy { AppInfoRepository(app) }
 
+    val autoScroller: AutoScroller by lazy { AutoScroller(appScope, settings) }
+    val macroRecording: MacroRecording by lazy { MacroRecording(appScope, settings) }
+    val mindful: MindfulMonitor by lazy { MindfulMonitor(appScope, engine, settings).also { it.start() } }
+
     val updates: UpdateRepository by lazy { UpdateRepository(app, appScope) }
 
     /** System UI, the platform and every installed keyboard: overlays, not apps. */
@@ -62,6 +69,8 @@ class AppContainer(val app: Application) {
             haptics = haptics,
             sources = listOf(proximity, motion, volumeKeys, face, hand, voice),
             volumeKeys = volumeKeys,
+            face = face,
+            autoScroller = autoScroller,
             scope = appScope,
             ownPackage = app.packageName,
             transientPackages = transientPackages(),

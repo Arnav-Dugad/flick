@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Overlays -->
+    <string name="ov_badge_cd">Flick is using the camera. Tap to pause Flick.</string>
+    <string name="ov_paused">Flick paused</string>
+    <string name="ov_undo">Undo</string>
+    <string name="ov_bubble_cd">Flick quick controls</string>
+    <string name="ov_pause">Pause auto-scroll</string>
+    <string name="ov_resume">Resume auto-scroll</string>
+    <string name="ov_slower">Slower</string>
+    <string name="ov_faster">Faster</string>
+    <string name="ov_stop">Stop auto-scroll</string>
+    <string name="ov_speed">Speed %1$d</string>
+    <string name="ov_wait_face">Look at the screen to continue</string>
+    <string name="ov_touched">Paused while you touch the screen</string>
+    <string name="ov_nudge_title">Time for a break?</string>
+    <plurals name="ov_nudge_reels">
+        <item quantity="one">You\'ve watched %1$d short video in a row.</item>
+        <item quantity="other">You\'ve watched %1$d short videos in a row.</item>
+    </plurals>
+    <plurals name="ov_nudge_minutes">
+        <item quantity="one">You\'ve spent %1$d minute in short videos.</item>
+        <item quantity="other">You\'ve spent %1$d minutes in short videos.</item>
+    </plurals>
+    <string name="ov_nudge_paused_title">Flick took a break</string>
+    <plurals name="ov_nudge_paused">
+        <item quantity="one">Flick paused after %1$d minute of short videos, as you asked.</item>
+        <item quantity="other">Flick paused after %1$d minutes of short videos, as you asked.</item>
+    </plurals>
+    <string name="ov_keep_going">Keep going</string>
+    <string name="ov_resume_flick">Resume Flick</string>
+    <string name="ov_take_break">Take a break</string>
+    <plurals name="ov_recording">
+        <item quantity="one">Recording · %1$d step</item>
+        <item quantity="other">Recording · %1$d steps</item>
+    </plurals>
+
+    <!-- Quick Settings tile and status notification -->
+    <string name="tile_label">Flick</string>
+    <string name="tile_on">On</string>
+    <string name="tile_paused">Paused</string>
+    <string name="tile_off">Set up</string>
+    <string name="notif_channel">Flick status</string>
+    <string name="notif_on">Flick is on</string>
+    <string name="notif_paused">Flick is paused</string>
+    <string name="notif_in_profile">Using “%1$s”</string>
+    <string name="notif_waiting">Waiting for an app with a profile</string>
+    <string name="notif_pause">Pause</string>
+    <string name="notif_resume">Resume</string>
+    <string name="notif_auto_scroll">Auto-scroll</string>
+
+    <!-- Auto-scroll screen -->
+    <string name="as_title">Auto-scroll</string>
+    <string name="as_intro">Flick scrolls the current app for you: articles, scripts, recipes. Start it with a gesture you bind to “Auto-scroll on / off”, the floating controller, or the status notification.</string>
+    <string name="as_mode">Mode</string>
+    <string name="as_mode_reading">Reading</string>
+    <string name="as_mode_reading_body">A smooth, steady crawl.</string>
+    <string name="as_mode_teleprompter">Teleprompter</string>
+    <string name="as_mode_teleprompter_body">Very slow and even, for reading aloud.</string>
+    <string name="as_mode_cooking">Cooking</string>
+    <string name="as_mode_cooking_body">A third of a page every few seconds.</string>
+    <string name="as_speed">Speed</string>
+    <string name="as_face">Pause when I look away</string>
+    <string name="as_face_body">Uses the front camera, only in apps that have a profile.</string>
+    <string name="as_stops">Auto-scroll stops when you switch apps, lock the phone or pause Flick, and waits while you touch the screen.</string>
+
+    <!-- Macros screen -->
+    <string name="mac_title">Macros</string>
+    <string name="mac_intro">Record a few taps and swipes, then run them with any gesture, for example a double knock that opens comments and goes back.</string>
+    <string name="mac_record">Record a macro</string>
+    <string name="mac_record_how">Flick will go to the background. Do the taps and swipes in your app, then tap Done at the top.</string>
+    <string name="mac_empty">No macros yet.</string>
+    <plurals name="mac_steps">
+        <item quantity="one">%1$d step</item>
+        <item quantity="other">%1$d steps</item>
+    </plurals>
+    <string name="mac_rename">Rename</string>
+    <string name="mac_delete">Delete</string>
+    <string name="mac_test">Test in 3 s</string>
+    <string name="mac_needs_service">Turn on the accessibility service to record macros.</string>
+    <string name="mac_saved">Saved “%1$s”. Bind it to a gesture in a profile.</string>
+
+    <!-- Mindful screen -->
+    <string name="mind_title">Mindful mode</string>
+    <string name="mind_intro">A gentle nudge when short videos start taking over. Counts stay on your phone.</string>
+    <string name="mind_enable">Mindful mode</string>
+    <string name="mind_today">This session · short videos: %1$d · minutes: %2$d</string>
+    <string name="mind_reels">Nudge after</string>
+    <plurals name="mind_reels_value">
+        <item quantity="one">%1$d video</item>
+        <item quantity="other">%1$d videos</item>
+    </plurals>
+    <string name="mind_minutes">Remind after</string>
+    <plurals name="mind_minutes_value">
+        <item quantity="one">%1$d minute</item>
+        <item quantity="other">%1$d minutes</item>
+    </plurals>
+    <string name="mind_off">Off</string>
+    <string name="mind_auto_pause">Pause Flick at the time limit</string>
+    <string name="mind_auto_pause_body">Instead of only reminding you</string>
+
+    <!-- Home tools -->
+    <string name="home_tools_autoscroll_body">Hands-free reading and recipes</string>
+    <string name="home_tools_macros_body">Record taps and swipes, run them with a gesture</string>
+    <string name="home_tools_mindful_body">Nudges when short videos take over</string>
+
+    <!-- Settings -->
+    <string name="set_overlays">On screen</string>
+    <string name="set_glow">Edge glow</string>
+    <string name="set_glow_body">A soft glow around the screen when a gesture works</string>
+    <string name="set_badge">Camera badge</string>
+    <string name="set_badge_body">Shows while the camera is on. Tap it to pause Flick.</string>
+    <string name="set_preview">Tracking preview in the badge</string>
+    <string name="set_preview_body">Tiny dots that show what Flick sees. Never the image.</string>
+    <string name="set_bubble">Floating controller</string>
+    <string name="set_bubble_body">Scroll, back, home, auto-scroll and pause, over any app</string>
+    <string name="set_notification">Status notification</string>
+    <string name="set_notification_body">Pause or auto-scroll from the notification shade</string>
+
+    <!-- Actions picker -->
+    <string name="act_group_flick">Flick</string>
+    <string name="act_run_macro_named">Run “%1$s”</string>
+</resources>

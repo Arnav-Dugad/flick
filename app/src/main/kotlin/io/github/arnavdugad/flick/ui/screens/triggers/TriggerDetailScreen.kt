@@ -116,8 +116,9 @@ fun TriggerDetailScreen(type: TriggerType, profileId: String?, onBack: () -> Uni
     }
     val usesCamera = type.requirement == TriggerRequirement.CAMERA
     DisposableEffect(usesCamera) {
-        container.visionPreview.enabled = usesCamera
-        onDispose { container.visionPreview.enabled = false }
+        val token = Any()
+        if (usesCamera) container.visionPreview.acquire(token)
+        onDispose { container.visionPreview.release(token) }
     }
 
     var detected by remember { mutableIntStateOf(0) }

@@ -26,6 +26,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import io.github.arnavdugad.flick.data.ThemeMode
+import io.github.arnavdugad.flick.ui.LocalMacroNames
 import io.github.arnavdugad.flick.ui.navigation.FlickNavigation
 import io.github.arnavdugad.flick.ui.theme.FlickTheme
 
@@ -68,7 +69,10 @@ class MainActivity : ComponentActivity() {
                     // Wait for settings so we never flash onboarding at returning users.
                     if (s != null) {
                         val startWithOnboarding = rememberSaveable { !s.onboardingComplete }
-                        CompositionLocalProvider(LocalOpenUpdate provides { showUpdate = true }) {
+                        CompositionLocalProvider(
+                            LocalOpenUpdate provides { showUpdate = true },
+                            LocalMacroNames provides s.macros.associate { it.id to it.name },
+                        ) {
                             FlickNavigation(startWithOnboarding)
                         }
                     }

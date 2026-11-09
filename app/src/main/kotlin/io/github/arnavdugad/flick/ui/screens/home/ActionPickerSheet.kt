@@ -29,6 +29,7 @@ import io.github.arnavdugad.flick.R
 import io.github.arnavdugad.flick.action.isSupported
 import io.github.arnavdugad.flick.core.model.Action
 import io.github.arnavdugad.flick.ui.ActionCatalog
+import io.github.arnavdugad.flick.ui.LocalMacroNames
 import io.github.arnavdugad.flick.ui.actionIcon
 import io.github.arnavdugad.flick.ui.actionLabel
 import io.github.arnavdugad.flick.ui.components.IconBadge
@@ -44,8 +45,10 @@ fun ActionPickerSheet(
 ) {
     val state = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val supported = { a: Action -> a !is Action.Global || a.action.isSupported() }
+    val macros = LocalMacroNames.current
     val groups = listOf(
         R.string.lab_group_gestures to ActionCatalog.gestures,
+        R.string.act_group_flick to listOf(Action.AutoScroll, Action.PauseFlick) + macros.keys.map { Action.RunMacro(it) },
         R.string.lab_group_system to ActionCatalog.system.filter(supported),
         R.string.lab_group_media to ActionCatalog.media,
     )

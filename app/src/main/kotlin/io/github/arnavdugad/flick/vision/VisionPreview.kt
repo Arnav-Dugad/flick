@@ -3,22 +3,30 @@ package io.github.arnavdugad.flick.vision
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import java.util.Collections
 
 /**
- * Tracking dots for the calibration screen, in *selfie* (mirrored) normalised coordinates. Only
- * landmark positions are kept — never camera pixels — and only while a screen asks for them.
+ * Tracking dots for the calibration screen and privacy badge, in *selfie* (mirrored) normalised
+ * coordinates. Only landmark positions are kept — never camera pixels — and only while someone has
+ * [acquire]d the preview.
  */
 class VisionPreview {
 
     /** Interleaved x,y pairs. */
     class Points(val face: FloatArray?, val hand: FloatArray?)
 
-    @Volatile
-    var enabled: Boolean = false
-        set(value) {
-            field = value
-            if (!value) _points.value = EMPTY
-        }
+    private val users = Collections.synchronizedSet(HashSet<Any>())
+
+    val enabled: Boolean get() = users.isNotEmpty()
+
+    fun acquire(user: Any) {
+        users += user
+    }
+
+    fun release(user: Any) {
+        users -= user
+        if (users.isEmpty()) _points.value = EMPTY
+    }
 
     private val _points = MutableStateFlow(EMPTY)
     val points: StateFlow<Points> = _points.asStateFlow()

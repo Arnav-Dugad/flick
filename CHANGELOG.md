@@ -3,6 +3,17 @@
 Release notes for each version. The release workflow copies the section matching the tag into
 the GitHub Release (and Flick's update sheet shows it).
 
+## [0.5.0] - 2026-11-09
+
+- **Auto-scroll**: Reading, Teleprompter and Cooking modes with adjustable speed. It can pause when you look away (camera, profile apps only), waits while you touch the screen, and stops when you switch apps.
+- **Floating controller**: a small draggable button over other apps with scroll, back, home, auto-scroll and pause. It fades when idle.
+- **Macros**: record a few taps and swipes in any app and replay them with a gesture.
+- **Quick Settings tile** to switch Flick on or off, and an optional **status notification** with Pause and Auto-scroll buttons.
+- **Mindful mode**: a gentle nudge after a number of short videos or minutes, or an automatic pause.
+- **Edge glow** when a gesture works.
+- **Camera badge** while the camera is on: tap it to pause Flick instantly, with Undo. It can optionally show the tracking dots.
+- New Flick actions for any gesture: Auto-scroll on/off, Pause Flick and Run macro.
+
 ## [0.4.1] - 2026-11-09
 
 First public release. (The v0.4.0 tag was a build that never published.)

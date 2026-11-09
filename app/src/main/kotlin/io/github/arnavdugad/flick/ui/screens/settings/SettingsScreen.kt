@@ -161,6 +161,8 @@ fun SettingsScreen(onBack: () -> Unit, onReplayOnboarding: () -> Unit) {
                     )
                 }
             }
+            item { SectionHeader(stringResource(R.string.set_overlays)) }
+            item { OverlaysCard(settings) }
             item { SectionHeader(stringResource(R.string.set_gestures)) }
             item {
                 FlickCard(contentPadding = PaddingValues(vertical = 8.dp)) {
@@ -230,6 +232,55 @@ fun SettingsScreen(onBack: () -> Unit, onReplayOnboarding: () -> Unit) {
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun OverlaysCard(settings: FlickSettings) {
+    val context = LocalContext.current
+    val repo = context.container.settings
+    val scope = rememberCoroutineScope()
+    val requestNotify = rememberPermissionRequest { granted ->
+        if (granted) scope.launch { repo.setStatusNotification(true) }
+    }
+    FlickCard(contentPadding = PaddingValues(vertical = 8.dp)) {
+        SwitchRow(
+            title = stringResource(R.string.set_glow),
+            body = stringResource(R.string.set_glow_body),
+            checked = settings.edgeGlow,
+            onChange = { scope.launch { repo.setEdgeGlow(it) } },
+        )
+        SwitchRow(
+            title = stringResource(R.string.set_badge),
+            body = stringResource(R.string.set_badge_body),
+            checked = settings.privacyBadge,
+            onChange = { scope.launch { repo.setPrivacyBadge(it) } },
+        )
+        SwitchRow(
+            title = stringResource(R.string.set_preview),
+            body = stringResource(R.string.set_preview_body),
+            checked = settings.trackingPreview,
+            enabled = settings.privacyBadge,
+            onChange = { scope.launch { repo.setTrackingPreview(it) } },
+        )
+        SwitchRow(
+            title = stringResource(R.string.set_bubble),
+            body = stringResource(R.string.set_bubble_body),
+            checked = settings.bubble,
+            onChange = { scope.launch { repo.setBubble(it) } },
+        )
+        SwitchRow(
+            title = stringResource(R.string.set_notification),
+            body = stringResource(R.string.set_notification_body),
+            checked = settings.statusNotification,
+            onChange = { on ->
+                if (on && !UpdateNotifications.canPost(context)) {
+                    requestNotify(Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    scope.launch { repo.setStatusNotification(on) }
+                }
+            },
+        )
     }
 }
 

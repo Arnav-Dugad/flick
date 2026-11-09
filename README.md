@@ -26,6 +26,7 @@ Free, open source, no ads, no accounts, no tracking. Everything runs on your pho
 - **Actions**: swipe, scroll, tap, double-tap to like, long-press, back, home, recent apps, notifications, quick settings, screenshot, lock screen, split screen, play/pause, next/previous track, volume.
 - **Per-app profiles**: different gestures for Reels, YouTube, your browser or Kindle, with smart defaults. You can create your own from templates.
 - **Live calibration**: see the signal, set the sensitivity, hold time and cooldown, and set your neutral pose.
+- **Auto-scroll** for articles, scripts and recipes, a **floating controller**, **macros** (record taps and swipes, replay them with a gesture), a **Quick Settings tile**, **mindful mode** nudges, **edge glow** feedback and a **camera badge** that pauses Flick with one tap.
 - **Automatic updates** from this repository, checked against a SHA-256 checksum and Flick's signing certificate before installing.
 - Material 3 with dynamic colour, dark theme and pure black, TalkBack labels, and support for large fonts.
 
@@ -88,7 +89,7 @@ The debug build uses the package `io.github.arnavdugad.flick.debug`, so it can b
 | M3 | Per-app profiles with smart defaults | ✅ |
 | M5 | In-app updates from GitHub Releases | ✅ |
 | M6 | Signed release pipeline | ✅ |
-| M4 | Auto-scroll, floating controller, macros, Quick Settings tile, mindful mode, edge glow, privacy badge | 🚧 next |
+| M4 | Auto-scroll, floating controller, macros, Quick Settings tile, mindful mode, edge glow, privacy badge | ✅ |
 
 ## License
 

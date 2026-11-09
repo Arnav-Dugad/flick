@@ -18,6 +18,9 @@ import io.github.arnavdugad.flick.vision.CameraController
 import io.github.arnavdugad.flick.vision.CameraFrame
 import io.github.arnavdugad.flick.vision.VisionPreview
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 
 /** Head pose and facial expressions from MediaPipe Face Landmarker (blendshapes + pose matrix). */
 class FaceTriggerSource(
@@ -28,6 +31,11 @@ class FaceTriggerSource(
 ) : CameraTriggerSource<FaceLandmarker>(camera, scope) {
 
     override val triggers: Set<TriggerType> = FaceGestureDetector.FACE_TRIGGERS
+
+    private val _facePresent = MutableStateFlow(false)
+
+    /** Whether a face was in view in the latest analysed frame (for auto-scroll face-away). */
+    val facePresent: StateFlow<Boolean> = _facePresent.asStateFlow()
 
     // Result thread only.
     private val detector = FaceGestureDetector()
@@ -89,6 +97,7 @@ class FaceTriggerSource(
         val now = SystemClock.uptimeMillis()
         val shapes = result.faceBlendshapes().orElse(null)?.firstOrNull()
         val matrix = result.facialTransformationMatrixes().orElse(null)?.firstOrNull()
+        _facePresent.value = shapes != null && matrix != null
         if (shapes == null || matrix == null) {
             lastSample = null
             detector.onFaceLost(now)
