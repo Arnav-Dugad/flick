@@ -1,0 +1,22 @@
+# Gradle / build
+.gradle/
+build/
+.kotlin/
+captures/
+*.apk
+*.aab
+output-metadata.json
+
+# Local config
+local.properties
+.idea/
+*.iml
+.DS_Store
+.cxx/
+.externalNativeBuild/
+
+# Signing — never commit keystores or their passwords
+*.jks
+*.keystore
+keystore.properties
+signing/

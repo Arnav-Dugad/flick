@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Flick</string>
+
+    <!-- Accessibility service (shown in system Settings) -->
+    <string name="a11y_service_label">Flick</string>
+    <string name="a11y_service_description">Flick lets you control apps hands-free: a nod, a smile, a wave or a knock becomes a swipe, tap or button press.\n\nFlick uses this permission to perform gestures and system actions for you, and to know which app is open so it can use the right profile. It does not read your messages or screen content, and nothing leaves your phone.</string>
+
+    <!-- Common -->
+    <string name="action_continue">Continue</string>
+    <string name="action_skip">Skip for now</string>
+    <string name="action_back">Back</string>
+    <string name="action_open_settings">Open settings</string>
+    <string name="action_finish">Finish</string>
+    <string name="action_run">Run</string>
+    <string name="settings">Settings</string>
+    <string name="step_of">Step %1$d of %2$d</string>
+
+    <!-- Onboarding -->
+    <string name="onb_welcome_title">Use your phone without touching it</string>
+    <string name="onb_welcome_body">Flick turns a nod, a smile, a wave or a knock into a swipe, a tap or a like, in the apps you choose.</string>
+    <string name="onb_welcome_cta">Get started</string>
+
+    <string name="onb_privacy_title">Private by design</string>
+    <string name="onb_privacy_1_title">Stays on your phone</string>
+    <string name="onb_privacy_1_body">Camera frames are processed in memory and never saved or sent anywhere.</string>
+    <string name="onb_privacy_2_title">No accounts, ads or tracking</string>
+    <string name="onb_privacy_2_body">The only network request is an optional check for Flick updates on GitHub.</string>
+    <string name="onb_privacy_3_title">You\'re in control</string>
+    <string name="onb_privacy_3_body">The camera only runs in apps you pick, you\'ll always see when it\'s on, and one tap stops everything.</string>
+    <string name="onb_privacy_4_title">Open source</string>
+    <string name="onb_privacy_4_body">Anyone can read exactly what Flick does.</string>
+    <string name="onb_privacy_cta">Sounds good</string>
+
+    <string name="onb_restricted_title">Allow restricted settings</string>
+    <string name="onb_restricted_body">Android protects accessibility settings for apps installed from a file. You only need to allow this once.</string>
+    <string name="onb_restricted_step1"><![CDATA[Tap <b>Open app info</b> below.]]></string>
+    <string name="onb_restricted_step2"><![CDATA[Tap the <b>⋮</b> menu in the top-right corner.]]></string>
+    <string name="onb_restricted_step3"><![CDATA[Tap <b>Allow restricted settings</b> and confirm with your PIN or fingerprint.]]></string>
+    <string name="onb_restricted_tip">Don\'t see the option? Try turning Flick on in Accessibility first. Android sometimes shows it only after a blocked attempt.</string>
+    <string name="onb_restricted_cta">Open app info</string>
+    <string name="onb_restricted_done">I\'ve done this</string>
+
+    <string name="onb_enable_title">Turn on Flick</string>
+    <string name="onb_enable_body">Flick needs Android\'s accessibility permission to swipe, tap and press buttons for you, and to know which app is open so it can use the right profile.</string>
+    <string name="onb_enable_never">Flick never reads your messages or screen content, and nothing leaves your phone.</string>
+    <string name="onb_enable_steps"><![CDATA[In Settings, open <b>Flick</b> (it may be under <i>Installed apps</i> or <i>Downloaded apps</i>), switch it on, then tap <b>Allow</b>.]]></string>
+    <string name="onb_enable_waiting">Waiting for Flick to be switched on…</string>
+    <string name="onb_enable_ready">Flick is on</string>
+
+    <string name="onb_try_title">Try your first gesture</string>
+    <string name="onb_try_body">Wave your hand over the top of your phone, near the front camera, like you\'re wiping it.</string>
+    <string name="onb_try_waiting">Waiting for a wave…</string>
+    <string name="onb_try_success">Nice, that\'s a wave! Detected %1$d×</string>
+    <string name="onb_try_footer">By default a wave goes to the next item, like the next reel. You can change this any time.</string>
+    <string name="onb_try_no_sensor">Your phone doesn\'t expose a proximity sensor, so the wave trigger isn\'t available. Camera and motion gestures arrive in the next update.</string>
+
+    <!-- Home -->
+    <string name="home_on_title">Flick is on</string>
+    <string name="home_paused_title">Flick is paused</string>
+    <string name="home_status_active">Listening for gestures</string>
+    <string name="home_status_paused">Tap to start listening again</string>
+    <string name="home_status_service_off">Turn on the accessibility service to start</string>
+    <string name="home_status_screen_off">Sleeping while the screen is locked</string>
+    <string name="home_master_toggle_cd">Flick master switch</string>
+    <string name="home_setup_title">Finish setup</string>
+    <string name="home_setup_body">Flick is switched off in Accessibility settings, so gestures can\'t control other apps yet.</string>
+    <string name="home_service_dead_title">Flick was stopped by the system</string>
+    <string name="home_service_dead_body">It\'s on in Settings but not running. Turn it off and on again in Accessibility settings. Battery savers on some phones do this.</string>
+    <string name="home_wave_title">Wave to scroll</string>
+    <string name="home_wave_body">Wave a hand over the top of your phone</string>
+    <string name="home_wave_action_label">Does</string>
+    <string name="home_sensor_near">Sensor covered</string>
+    <string name="home_sensor_clear">Sensor clear</string>
+    <string name="home_sensor_missing">No proximity sensor on this phone</string>
+    <string name="home_try_title">Try a gesture</string>
+    <string name="home_try_body">Practise without anything happening on screen.</string>
+    <string name="home_try_start">Start practice</string>
+    <string name="home_try_stop">Stop practice</string>
+    <plurals name="home_try_count">
+        <item quantity="one">%1$d wave so far</item>
+        <item quantity="other">%1$d waves so far</item>
+    </plurals>
+    <string name="home_last_event">Last: %1$s → %2$s</string>
+    <string name="home_last_event_practice">Last: %1$s (practice)</string>
+    <string name="home_tools_title">Tools</string>
+    <string name="home_lab_title">Action lab</string>
+    <string name="home_lab_body">Test every action Flick can perform</string>
+    <string name="home_settings_body">Appearance, feedback and about</string>
+    <string name="pick_action_title">When you wave…</string>
+
+    <!-- Triggers -->
+    <string name="trigger_proximity_wave">Wave</string>
+
+    <!-- Actions -->
+    <string name="act_next">Next (swipe up)</string>
+    <string name="act_previous">Previous (swipe down)</string>
+    <string name="act_swipe_left">Swipe left</string>
+    <string name="act_swipe_right">Swipe right</string>
+    <string name="act_scroll_down">Scroll down</string>
+    <string name="act_scroll_up">Scroll up</string>
+    <string name="act_scroll_left">Scroll left</string>
+    <string name="act_scroll_right">Scroll right</string>
+    <string name="act_tap">Tap centre</string>
+    <string name="act_tap_at">Tap at %1$d%%, %2$d%%</string>
+    <string name="act_double_tap">Double-tap (like)</string>
+    <string name="act_long_press">Long-press</string>
+    <string name="act_back">Back</string>
+    <string name="act_home">Home</string>
+    <string name="act_recents">Recent apps</string>
+    <string name="act_notifications">Notifications</string>
+    <string name="act_quick_settings">Quick settings</string>
+    <string name="act_power_dialog">Power menu</string>
+    <string name="act_split_screen">Split screen</string>
+    <string name="act_lock_screen">Lock screen</string>
+    <string name="act_screenshot">Screenshot</string>
+    <string name="act_dismiss_shade">Close notification shade</string>
+    <string name="act_all_apps">App drawer</string>
+    <string name="act_play_pause">Play / pause</string>
+    <string name="act_next_track">Next track</string>
+    <string name="act_previous_track">Previous track</string>
+    <string name="act_volume_up">Volume up</string>
+    <string name="act_volume_down">Volume down</string>
+    <string name="act_mute">Mute / unmute</string>
+    <string name="act_needs_android">Needs Android %1$s</string>
+
+    <!-- Action lab -->
+    <string name="lab_title">Action lab</string>
+    <string name="lab_intro">Run any action to check it works on your phone. Pick a delay, then switch to another app before it fires.</string>
+    <string name="lab_delay">Delay</string>
+    <string name="lab_delay_now">Now</string>
+    <string name="lab_delay_seconds">%1$d s</string>
+    <string name="lab_group_gestures">Gestures</string>
+    <string name="lab_group_system">System</string>
+    <string name="lab_group_media">Media</string>
+    <string name="lab_service_off">Turn on the accessibility service to run actions.</string>
+    <string name="lab_running_in">Running in %1$d s…</string>
+    <string name="lab_result_ok">%1$s: done</string>
+    <string name="lab_result_fail">%1$s: couldn\'t run</string>
+
+    <!-- Settings -->
+    <string name="set_appearance">Appearance</string>
+    <string name="set_theme">Theme</string>
+    <string name="set_theme_system">System</string>
+    <string name="set_theme_light">Light</string>
+    <string name="set_theme_dark">Dark</string>
+    <string name="set_amoled">Pure black</string>
+    <string name="set_amoled_body">Use true black in dark theme. Saves power on OLED screens.</string>
+    <string name="set_dynamic">Dynamic colour</string>
+    <string name="set_dynamic_body">Match your wallpaper colours</string>
+    <string name="set_dynamic_unavailable">Needs Android 12 or newer</string>
+    <string name="set_feedback">Feedback</string>
+    <string name="set_haptics">Haptic feedback</string>
+    <string name="set_haptics_body">Vibrate briefly when a gesture is recognised</string>
+    <string name="set_setup">Setup</string>
+    <string name="set_accessibility">Accessibility service</string>
+    <string name="set_accessibility_on">On</string>
+    <string name="set_accessibility_off">Off: tap to open settings</string>
+    <string name="set_replay_onboarding">Show the introduction again</string>
+    <string name="set_about">About</string>
+    <string name="set_version">Version</string>
+    <string name="set_source">Source code</string>
+    <string name="set_license">Licence</string>
+    <string name="set_license_value">Apache License 2.0</string>
+</resources>
