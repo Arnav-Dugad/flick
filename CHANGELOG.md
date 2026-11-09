@@ -3,6 +3,14 @@
 Release notes for each version. The release workflow copies the section matching the tag into
 the GitHub Release (and Flick's update sheet shows it).
 
+## [0.5.1] - 2026-11-09
+
+- **Fixed: gestures and the camera stopped working in 0.5.0.** Flick's own floating controller, badge and glow windows were mistaken for "you switched to Flick", which switched the app's profile off and made the floating controller flicker.
+- Home is clearer: an honest status ("Almost ready" until Flick is switched on in Accessibility), one setup checklist instead of stacked warnings, the Flick logo in the header, and the tools in a two-column grid.
+- Profile cards say when none of a profile's apps are installed, and invite you to add gestures when there are none.
+- The floating controller keeps a small gap from the screen edge and looks lighter when collapsed.
+- Onboarding screens are vertically balanced on tall phones.
+
 ## [0.5.0] - 2026-11-09
 
 - **Auto-scroll**: Reading, Teleprompter and Cooking modes with adjustable speed. It can pause when you look away (camera, profile apps only), waits while you touch the screen, and stops when you switch apps.

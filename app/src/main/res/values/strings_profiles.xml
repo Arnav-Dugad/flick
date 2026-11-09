@@ -8,6 +8,7 @@
         <item quantity="other">%1$d gestures</item>
     </plurals>
     <string name="profile_no_apps">No apps yet</string>
+    <string name="profile_no_gestures_short">No gestures yet: tap to add one</string>
     <string name="profile_not_installed">None of its apps are installed</string>
     <string name="profile_everywhere_body">Applies in every app without its own profile. For your privacy, camera and voice gestures can\'t be used here.</string>
     <string name="profile_enabled_cd">%1$s profile</string>

@@ -198,7 +198,7 @@ class OverlayController(private val service: AccessibilityService) {
         if (show && bubbleView == null) {
             val screenH = service.resources.displayMetrics.heightPixels
             bubbleParams.y = (screenH * 0.42f).toInt()
-            bubbleParams.x = 0
+            bubbleParams.x = dp(BUBBLE_MARGIN)
             bubbleView = host.addCompose(bubbleParams) {
                 FloatingBubble(
                     onDrag = ::dragBubble,
@@ -227,7 +227,7 @@ class OverlayController(private val service: AccessibilityService) {
         val left = if (bubbleOnRight) screenW - bubbleParams.x - view.width else bubbleParams.x
         bubbleOnRight = left + view.width / 2 > screenW / 2
         bubbleParams.gravity = Gravity.TOP or if (bubbleOnRight) Gravity.END else Gravity.START
-        bubbleParams.x = 0
+        bubbleParams.x = dp(BUBBLE_MARGIN)
         bubbleParams.y = bubbleParams.y.coerceIn(dp(48), service.resources.displayMetrics.heightPixels - dp(120))
         host.update(view, bubbleParams)
     }
@@ -363,6 +363,7 @@ class OverlayController(private val service: AccessibilityService) {
 
     private companion object {
         const val GLOW_KEEP_MS = 900L
+        const val BUBBLE_MARGIN = 10
         const val UNDO_MS = 4_000L
         const val NUDGE_MS = 15_000L
     }

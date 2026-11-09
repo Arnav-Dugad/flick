@@ -55,13 +55,16 @@
     <!-- Home -->
     <string name="home_on_title">Flick is on</string>
     <string name="home_paused_title">Flick is paused</string>
+    <string name="home_not_running_title">Almost ready</string>
+    <string name="home_check_service">Turn on Flick in Accessibility</string>
+    <string name="home_check_camera">Allow camera access</string>
+    <string name="home_check_mic">Allow microphone access</string>
     <string name="home_status_active">Listening for gestures</string>
     <string name="home_status_paused">Tap to start listening again</string>
     <string name="home_status_service_off">Turn on the accessibility service to start</string>
     <string name="home_status_screen_off">Sleeping while the screen is locked</string>
     <string name="home_master_toggle_cd">Flick master switch</string>
     <string name="home_setup_title">Finish setup</string>
-    <string name="home_setup_body">Flick is switched off in Accessibility settings, so gestures can\'t control other apps yet.</string>
     <string name="home_service_dead_title">Flick was stopped by the system</string>
     <string name="home_service_dead_body">It\'s on in Settings but not running. Turn it off and on again in Accessibility settings. Battery savers on some phones do this.</string>
     <string name="home_try_title">Try a gesture</string>
@@ -160,10 +163,6 @@
     <!-- M2: home -->
     <string name="home_try_body">Practise your gestures without anything happening on screen.</string>
     <string name="home_try_waiting">Waiting for a gesture…</string>
-    <string name="home_perm_camera_title">Allow camera access</string>
-    <string name="home_perm_camera_body">Some of your gestures use the front camera. Frames are analysed in memory and never saved or sent.</string>
-    <string name="home_perm_mic_title">Allow microphone access</string>
-    <string name="home_perm_mic_body">Voice gestures listen for a few words, recognised offline on your phone.</string>
     <string name="home_camera_blocked_title">Android is blocking the camera</string>
     <string name="home_camera_blocked_body">Camera gestures can\'t run while another app is open on this phone. Your other gestures keep working.</string>
     <string name="home_camera_busy_body">Another app is using the camera. Camera gestures pause and resume automatically.</string>

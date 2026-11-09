@@ -213,8 +213,8 @@ fun FloatingBubble(
 
     Surface(
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surfaceContainerHigh,
-        shadowElevation = 6.dp,
+        color = if (expanded) MaterialTheme.colorScheme.surfaceContainerHigh else Color.Transparent,
+        shadowElevation = if (expanded) 6.dp else 0.dp,
         modifier = Modifier
             .alpha(alpha)
             .pointerInput(Unit) {
@@ -228,7 +228,7 @@ fun FloatingBubble(
                 }
             },
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(4.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(if (expanded) 4.dp else 6.dp)) {
             Surface(
                 onClick = {
                     touchKey++
@@ -237,6 +237,7 @@ fun FloatingBubble(
                 },
                 shape = CircleShape,
                 color = MaterialTheme.colorScheme.primaryContainer,
+                shadowElevation = if (expanded) 0.dp else 4.dp,
                 modifier = Modifier
                     .size(48.dp)
                     .semantics { contentDescription = openCd },

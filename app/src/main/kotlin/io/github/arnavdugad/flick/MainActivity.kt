@@ -105,5 +105,11 @@ class MainActivity : ComponentActivity() {
     override fun onResume() {
         super.onResume()
         container.screenState.refresh()
+        container.engine.appUiVisible = true
+    }
+
+    override fun onPause() {
+        container.engine.appUiVisible = false
+        super.onPause()
     }
 }

@@ -171,7 +171,20 @@ class FlickEngine(
     /** The most recent app in front other than Flick itself, for the Home screen. */
     val lastApp: StateFlow<String?> = _lastApp
 
+    /**
+     * True while one of Flick's own activities is on screen. Flick's overlay windows (floating
+     * controller, badge, glow) also report window changes under Flick's package; those must not
+     * count as "the user switched to Flick", or the active profile would flip off and on.
+     */
+    @Volatile
+    var appUiVisible: Boolean = false
+        set(value) {
+            field = value
+            if (value) onWindowStateChanged(ownPackage)
+        }
+
     fun onWindowStateChanged(packageName: String) {
+        if (packageName == ownPackage && !appUiVisible) return
         if (foregroundTracker.onWindow(packageName)) {
             val pkg = foregroundTracker.current
             foreground.value = pkg

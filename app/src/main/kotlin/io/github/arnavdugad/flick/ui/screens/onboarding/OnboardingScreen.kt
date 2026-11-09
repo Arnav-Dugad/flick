@@ -12,6 +12,7 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -241,11 +242,14 @@ private fun StepLayout(
     body: @Composable ColumnScope.() -> Unit,
 ) {
     Column(Modifier.fillMaxSize()) {
+        BoxWithConstraints(Modifier.weight(1f)) {
         Column(
             Modifier
-                .weight(1f)
+                .fillMaxWidth()
+                .heightIn(min = maxHeight)
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 24.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
             Spacer(Modifier.height(8.dp))
             illustration(
@@ -264,6 +268,7 @@ private fun StepLayout(
             Spacer(Modifier.height(12.dp))
             body()
             Spacer(Modifier.height(16.dp))
+        }
         }
         Column(
             Modifier

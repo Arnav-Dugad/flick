@@ -12,6 +12,12 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.size
+import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.RadioButtonUnchecked
+import io.github.arnavdugad.flick.ui.illustrations.FlickMark
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -162,7 +168,13 @@ fun HomeScreen(
             .nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(stringResource(R.string.app_name)) },
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        FlickMark(Modifier.size(40.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(stringResource(R.string.app_name))
+                    }
+                },
                 actions = {
                     IconButton(onClick = onOpenSettings) {
                         Icon(Icons.Rounded.Settings, contentDescription = stringResource(R.string.settings))
@@ -199,37 +211,18 @@ fun HomeScreen(
             item(key = "setup") {
                 val serviceDead = enabledInSettings && !state.serviceConnected
                 AnimatedVisibility(
-                    visible = !enabledInSettings || serviceDead,
+                    visible = !enabledInSettings || serviceDead || needsCamera || needsMic,
                     enter = fadeIn(FlickMotion.effects()) + expandVertically(FlickMotion.spatial()),
                     exit = fadeOut(FlickMotion.effects()) + shrinkVertically(FlickMotion.spatial()),
                 ) {
-                    val samsung = Build.MANUFACTURER.equals("samsung", ignoreCase = true)
-                    NoticeCard(
-                        title = stringResource(if (serviceDead) R.string.home_service_dead_title else R.string.home_setup_title),
-                        body = stringResource(if (serviceDead) R.string.home_service_dead_body else R.string.home_setup_body) +
-                            if (serviceDead && samsung) "\n\n" + stringResource(R.string.home_samsung_tip) else "",
-                        action = stringResource(R.string.action_open_settings),
-                        onAction = { SystemIntents.openAccessibilitySettings(context) },
-                    )
-                }
-            }
-            if (needsCamera) {
-                item(key = "cam_perm") {
-                    NoticeCard(
-                        title = stringResource(R.string.home_perm_camera_title),
-                        body = stringResource(R.string.home_perm_camera_body),
-                        action = stringResource(R.string.detail_grant),
-                        onAction = { requestPermission(Manifest.permission.CAMERA) },
-                    )
-                }
-            }
-            if (needsMic) {
-                item(key = "mic_perm") {
-                    NoticeCard(
-                        title = stringResource(R.string.home_perm_mic_title),
-                        body = stringResource(R.string.home_perm_mic_body),
-                        action = stringResource(R.string.detail_grant),
-                        onAction = { requestPermission(Manifest.permission.RECORD_AUDIO) },
+                    SetupChecklist(
+                        serviceOn = enabledInSettings && !serviceDead,
+                        serviceDead = serviceDead,
+                        cameraNeeded = needsCamera,
+                        micNeeded = needsMic,
+                        onOpenAccessibility = { SystemIntents.openAccessibilitySettings(context) },
+                        onCamera = { requestPermission(Manifest.permission.CAMERA) },
+                        onMic = { requestPermission(Manifest.permission.RECORD_AUDIO) },
                     )
                 }
             }
@@ -259,8 +252,12 @@ fun HomeScreen(
                 ProfileCard(
                     profile = profile,
                     installed = profile.packages.filter { context.container.apps.isInstalled(it) },
-                    problem = profile.effectiveBindings.keys.firstNotNullOfOrNull { t ->
-                        triggerProblem(t, statuses[t], permissions)
+                    problem = if (profile.kind == ProfileKind.APPS &&
+                        profile.packages.none { context.container.apps.isInstalled(it) }
+                    ) {
+                        null
+                    } else {
+                        profile.effectiveBindings.keys.firstNotNullOfOrNull { t -> triggerProblem(t, statuses[t], permissions) }
                     },
                     onClick = { onOpenProfile(profile.id) },
                     onEnabled = { on -> scope.launch { context.container.settings.setProfileEnabled(profile.id, on) } },
@@ -287,53 +284,26 @@ fun HomeScreen(
             }
 
             item(key = "tools") { SectionHeader(stringResource(R.string.home_tools_title)) }
-            item(key = "autoscroll") {
-                ToolRow(
-                    title = stringResource(R.string.as_title),
-                    body = stringResource(R.string.home_tools_autoscroll_body),
-                    icon = Icons.Rounded.KeyboardDoubleArrowDown,
-                    onClick = onOpenAutoScroll,
+            item(key = "tools_grid") {
+                val tools = listOf(
+                    Tool(Icons.Rounded.KeyboardDoubleArrowDown, R.string.as_title, R.string.home_tools_autoscroll_body, onOpenAutoScroll),
+                    Tool(Icons.Rounded.PlayCircle, R.string.mac_title, R.string.home_tools_macros_body, onOpenMacros),
+                    Tool(Icons.Rounded.SelfImprovement, R.string.mind_title, R.string.home_tools_mindful_body, onOpenMindful),
+                    Tool(Icons.Rounded.Gesture, R.string.home_library_title, R.string.home_library_body, onOpenLibrary),
+                    Tool(Icons.Rounded.Science, R.string.home_lab_title, R.string.home_lab_body, onOpenLab),
+                    Tool(Icons.Rounded.Settings, R.string.settings, R.string.home_settings_body, onOpenSettings),
                 )
-            }
-            item(key = "macros") {
-                ToolRow(
-                    title = stringResource(R.string.mac_title),
-                    body = stringResource(R.string.home_tools_macros_body),
-                    icon = Icons.Rounded.PlayCircle,
-                    onClick = onOpenMacros,
-                )
-            }
-            item(key = "mindful") {
-                ToolRow(
-                    title = stringResource(R.string.mind_title),
-                    body = stringResource(R.string.home_tools_mindful_body),
-                    icon = Icons.Rounded.SelfImprovement,
-                    onClick = onOpenMindful,
-                )
-            }
-            item(key = "library") {
-                ToolRow(
-                    title = stringResource(R.string.home_library_title),
-                    body = stringResource(R.string.home_library_body),
-                    icon = Icons.Rounded.Gesture,
-                    onClick = onOpenLibrary,
-                )
-            }
-            item(key = "lab") {
-                ToolRow(
-                    title = stringResource(R.string.home_lab_title),
-                    body = stringResource(R.string.home_lab_body),
-                    icon = Icons.Rounded.Science,
-                    onClick = onOpenLab,
-                )
-            }
-            item(key = "settings") {
-                ToolRow(
-                    title = stringResource(R.string.settings),
-                    body = stringResource(R.string.home_settings_body),
-                    icon = Icons.Rounded.Settings,
-                    onClick = onOpenSettings,
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    for (pair in tools.chunked(2)) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            modifier = Modifier.height(IntrinsicSize.Min),
+                        ) {
+                            for (tool in pair) ToolTile(tool, Modifier.weight(1f).fillMaxHeight())
+                            if (pair.size == 1) Spacer(Modifier.weight(1f))
+                        }
+                    }
+                }
             }
         }
     }
@@ -363,13 +333,14 @@ private fun NewProfileSheetHost(show: Boolean, onDismiss: () -> Unit, onCreated:
 @Composable
 private fun MasterCard(state: EngineState, onToggle: (Boolean) -> Unit) {
     val on = state.masterEnabled
+    val running = on && state.serviceConnected
     val container by animateColorAsState(
-        if (on) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+        if (running) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
         FlickMotion.effects(),
         label = "masterBg",
     )
     val content by animateColorAsState(
-        if (on) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+        if (running) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
         FlickMotion.effects(),
         label = "masterFg",
     )
@@ -381,7 +352,13 @@ private fun MasterCard(state: EngineState, onToggle: (Boolean) -> Unit) {
             EngineStatus.ACTIVE -> R.string.home_status_active
         },
     )
-    val title = stringResource(if (on) R.string.home_on_title else R.string.home_paused_title)
+    val title = stringResource(
+        when {
+            !on -> R.string.home_paused_title
+            !state.serviceConnected -> R.string.home_not_running_title
+            else -> R.string.home_on_title
+        },
+    )
     FlickCard(
         color = container,
         shape = MaterialTheme.shapes.extraLarge,
@@ -513,15 +490,17 @@ private fun ProfileCard(
                     }
                     Text(
                         when {
+                            profile.kind == ProfileKind.APPS && profile.packages.isEmpty() ->
+                                stringResource(R.string.profile_no_apps)
+                            profile.kind == ProfileKind.APPS && installed.isEmpty() ->
+                                stringResource(R.string.profile_not_installed)
                             problem != null && profile.enabled -> problem
-                            profile.kind == ProfileKind.EVERYWHERE ||
-                                installed.isNotEmpty() -> pluralStringResource(
+                            profile.bindings.isEmpty() -> stringResource(R.string.profile_no_gestures_short)
+                            else -> pluralStringResource(
                                 R.plurals.profile_gesture_count,
                                 profile.bindings.size,
                                 profile.bindings.size,
                             )
-                            profile.packages.isEmpty() -> stringResource(R.string.profile_no_apps)
-                            else -> stringResource(R.string.profile_not_installed)
                         },
                         style = MaterialTheme.typography.bodyMedium,
                         color = if (problem != null && profile.enabled) {
@@ -580,17 +559,97 @@ private fun PracticeCard(practicing: Boolean, count: Int, last: TriggerType?, en
     }
 }
 
+private class Tool(val icon: ImageVector, val title: Int, val body: Int, val onClick: () -> Unit)
+
 @Composable
-private fun ToolRow(title: String, body: String, icon: ImageVector, onClick: () -> Unit) {
-    FlickCard(onClick = onClick, contentPadding = PaddingValues(16.dp)) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconBadge(icon)
-            Spacer(Modifier.width(16.dp))
-            Column(Modifier.weight(1f)) {
-                Text(title, style = MaterialTheme.typography.titleMedium)
-                Text(body, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-            Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+private fun ToolTile(tool: Tool, modifier: Modifier = Modifier) {
+    FlickCard(onClick = tool.onClick, modifier = modifier, contentPadding = PaddingValues(16.dp)) {
+        IconBadge(tool.icon)
+        Spacer(Modifier.height(12.dp))
+        Text(stringResource(tool.title), style = MaterialTheme.typography.titleMedium)
+        Text(
+            stringResource(tool.body),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+/** What's left to set up, as one calm checklist instead of a stack of warnings. */
+@Composable
+private fun SetupChecklist(
+    serviceOn: Boolean,
+    serviceDead: Boolean,
+    cameraNeeded: Boolean,
+    micNeeded: Boolean,
+    onOpenAccessibility: () -> Unit,
+    onCamera: () -> Unit,
+    onMic: () -> Unit,
+) {
+    val samsung = Build.MANUFACTURER.equals("samsung", ignoreCase = true)
+    FlickCard(color = MaterialTheme.colorScheme.secondaryContainer) {
+        Text(
+            stringResource(if (serviceDead) R.string.home_service_dead_title else R.string.home_setup_title),
+            style = MaterialTheme.typography.titleMedium,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        if (serviceDead) {
+            Spacer(Modifier.height(4.dp))
+            Text(
+                stringResource(R.string.home_service_dead_body) +
+                    if (samsung) "\n\n" + stringResource(R.string.home_samsung_tip) else "",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        ChecklistRow(
+            done = serviceOn,
+            title = stringResource(R.string.home_check_service),
+            action = stringResource(R.string.action_open_settings),
+            onAction = onOpenAccessibility,
+        )
+        if (cameraNeeded) {
+            ChecklistRow(
+                done = false,
+                title = stringResource(R.string.home_check_camera),
+                action = stringResource(R.string.detail_grant),
+                onAction = onCamera,
+            )
+        }
+        if (micNeeded) {
+            ChecklistRow(
+                done = false,
+                title = stringResource(R.string.home_check_mic),
+                action = stringResource(R.string.detail_grant),
+                onAction = onMic,
+            )
+        }
+    }
+}
+
+@Composable
+private fun ChecklistRow(done: Boolean, title: String, action: String, onAction: () -> Unit) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .heightIn(min = 56.dp),
+    ) {
+        Icon(
+            if (done) Icons.Rounded.CheckCircle else Icons.Rounded.RadioButtonUnchecked,
+            contentDescription = null,
+            tint = if (done) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        Spacer(Modifier.width(12.dp))
+        Text(
+            title,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSecondaryContainer,
+            modifier = Modifier.weight(1f),
+        )
+        if (!done) {
+            Button(onClick = onAction, modifier = Modifier.heightIn(min = 48.dp)) { Text(action) }
         }
     }
 }
