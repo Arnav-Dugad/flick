@@ -47,6 +47,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.Manifest
 import android.text.format.DateUtils
 import androidx.compose.material.icons.automirrored.rounded.Undo
+import androidx.compose.material.icons.rounded.NewReleases
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material.icons.rounded.SystemUpdate
 import androidx.compose.material.icons.rounded.Verified
@@ -198,6 +199,12 @@ fun SettingsScreen(onBack: () -> Unit, onReplayOnboarding: () -> Unit) {
                         title = stringResource(R.string.set_version),
                         body = BuildConfig.VERSION_NAME,
                         onClick = null,
+                    )
+                    LinkRow(
+                        icon = { Icon(Icons.Rounded.NewReleases, null) },
+                        title = stringResource(R.string.set_releases),
+                        body = stringResource(R.string.set_releases_body),
+                        onClick = { SystemIntents.openUrl(context, "https://github.com/${BuildConfig.GITHUB_REPO}/releases") },
                     )
                     LinkRow(
                         icon = { Icon(Icons.Rounded.Code, null) },
