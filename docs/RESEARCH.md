@@ -319,3 +319,7 @@ Exact patch versions are re-checked when the Gradle project is created (M1).
 - **Knock vs screen-tap signature** (linear Z acceleration, hand-held): knocks on the back peak at +7…+10 m/s² and
   ring symmetrically; screen taps are one-sided, −5…−14 m/s² with ≤ +3.7 m/s² rebound. Flick classifies impacts by
   shape (positive peak ≥ threshold and ≥ half the negative peak).
+- **Self-update works end to end** (0.4.0 → 0.4.1 from GitHub Releases): GitHub API → `version.json` → download →
+  SHA-256 match → signing-certificate match → PackageInstaller session → "Session installed". After the first
+  update Android records Flick itself as `installerPackageName`, so later updates qualify for
+  `USER_ACTION_NOT_REQUIRED` ("updating itself"). The one unavoidable prompt was "Install unknown apps" for Flick.
