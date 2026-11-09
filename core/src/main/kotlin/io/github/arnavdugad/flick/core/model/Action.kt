@@ -86,6 +86,21 @@ sealed interface Action {
     @SerialName("media")
     data class Media(val command: MediaCommand) : Action
 
+    /** Start or stop auto-scroll in the current app. */
+    @Serializable
+    @SerialName("auto_scroll")
+    data object AutoScroll : Action
+
+    /** Replay a recorded macro. */
+    @Serializable
+    @SerialName("macro")
+    data class RunMacro(val macroId: String) : Action
+
+    /** Pause Flick entirely (the kill switch). */
+    @Serializable
+    @SerialName("pause_flick")
+    data object PauseFlick : Action
+
     companion object {
         const val DEFAULT_SWIPE_DISTANCE = 0.45f
         const val DEFAULT_SWIPE_MS = 280L

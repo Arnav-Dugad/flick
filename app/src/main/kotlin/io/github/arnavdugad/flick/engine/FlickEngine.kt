@@ -201,7 +201,14 @@ class FlickEngine(
             if (toRun != null) haptics.confirm() else haptics.tick()
         }
         scope.launch {
-            val executed = toRun?.let { bridge.value?.executor?.execute(it) } ?: false
+            val executed = when (toRun) {
+                null -> false
+                Action.PauseFlick -> {
+                    settings.setMasterEnabled(false)
+                    true
+                }
+                else -> bridge.value?.executor?.execute(toRun) ?: false
+            }
             _events.emit(
                 FiredTrigger(
                     trigger = trigger,

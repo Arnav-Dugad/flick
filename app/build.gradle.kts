@@ -105,6 +105,7 @@ dependencies {
     implementation(libs.androidx.navigation3.runtime)
     implementation(libs.androidx.navigation3.ui)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.work.runtime)
 
     implementation(libs.camerax.core)
     implementation(libs.camerax.camera2)

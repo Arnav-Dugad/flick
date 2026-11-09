@@ -8,6 +8,14 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <!-- Experimental offline voice keywords. Audio is recognised on-device. -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- The only network use: checking GitHub Releases for updates (can be turned off). -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Installing Flick's own updates; Android asks the user once. -->
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.UPDATE_PACKAGES_WITHOUT_USER_ACTION" />
+    <!-- "Update available" notifications (Android 13+ asks first). -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
     <uses-feature android:name="android.hardware.camera.front" android:required="false" />
@@ -47,6 +55,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <receiver
+            android:name=".update.InstallResultReceiver"
+            android:exported="false" />
 
         <service
             android:name=".service.FlickAccessibilityService"

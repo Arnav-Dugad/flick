@@ -78,7 +78,10 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleResumeEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import io.github.arnavdugad.flick.LocalOpenUpdate
 import io.github.arnavdugad.flick.R
+import io.github.arnavdugad.flick.update.UpdateState
+import androidx.compose.material.icons.rounded.SystemUpdate
 import io.github.arnavdugad.flick.container
 import io.github.arnavdugad.flick.core.model.TriggerRequirement
 import io.github.arnavdugad.flick.core.model.TriggerType
@@ -140,6 +143,8 @@ fun HomeScreen(
     val lastApp by vm.lastApp.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
     var showTemplates by remember { mutableStateOf(false) }
+    val updateState by context.container.updates.state.collectAsStateWithLifecycle()
+    val openUpdate = LocalOpenUpdate.current
     val needsCamera = bound.any { it.requirement == TriggerRequirement.CAMERA } && !permissions.camera
     val needsMic = bound.any { it.requirement == TriggerRequirement.MICROPHONE } && !permissions.microphone
     val cameraStatus = bound.firstOrNull { it.requirement == TriggerRequirement.CAMERA }?.let { statuses[it] }
@@ -171,6 +176,19 @@ fun HomeScreen(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             item(key = "master") { MasterCard(state = state, onToggle = vm::setMasterEnabled) }
+
+            (updateState as? UpdateState.Available)?.let { available ->
+                item(key = "update") {
+                    NoticeCard(
+                        title = stringResource(R.string.update_banner_title),
+                        body = stringResource(R.string.update_banner_body, available.info.versionName),
+                        action = stringResource(R.string.update_banner_action),
+                        onAction = openUpdate,
+                        icon = Icons.Rounded.SystemUpdate,
+                        warning = false,
+                    )
+                }
+            }
 
             item(key = "setup") {
                 val serviceDead = enabledInSettings && !state.serviceConnected

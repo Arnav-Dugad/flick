@@ -1,5 +1,6 @@
 package io.github.arnavdugad.flick.ui.screens.onboarding
 
+import android.os.Build
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateDpAsState
@@ -376,7 +377,15 @@ private fun EnableStep(enabled: Boolean, onOpenSettings: () -> Unit, onNext: () 
         )
         Spacer(Modifier.height(16.dp))
         Text(htmlString(R.string.onb_enable_steps), style = MaterialTheme.typography.bodyMedium)
-        Spacer(Modifier.height(16.dp))
+        if (!enabled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val context = LocalContext.current
+            TextButton(
+                onClick = { SystemIntents.openAppDetails(context) },
+                modifier = Modifier.heightIn(min = 48.dp),
+            ) { Text(stringResource(R.string.onb_enable_greyed_out)) }
+        } else {
+            Spacer(Modifier.height(16.dp))
+        }
         Row(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.semantics(mergeDescendants = true) { liveRegion = LiveRegionMode.Polite },

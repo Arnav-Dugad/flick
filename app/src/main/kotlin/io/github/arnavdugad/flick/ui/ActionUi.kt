@@ -90,6 +90,9 @@ fun actionLabel(action: Action): String = when (action) {
     is Action.LongPress -> stringResource(R.string.act_long_press)
     is Action.Global -> stringResource(action.action.labelRes)
     is Action.Media -> stringResource(action.command.labelRes)
+    Action.AutoScroll -> stringResource(R.string.act_auto_scroll)
+    is Action.RunMacro -> stringResource(R.string.act_run_macro)
+    Action.PauseFlick -> stringResource(R.string.act_pause_flick)
 }
 
 fun actionIcon(action: Action): ImageVector = when (action) {
@@ -128,6 +131,9 @@ fun actionIcon(action: Action): ImageVector = when (action) {
         MediaCommand.VOLUME_DOWN -> Icons.AutoMirrored.Rounded.VolumeDown
         MediaCommand.MUTE_TOGGLE -> Icons.AutoMirrored.Rounded.VolumeOff
     }
+    Action.AutoScroll -> Icons.Rounded.KeyboardDoubleArrowDown
+    is Action.RunMacro -> Icons.Rounded.PlayArrow
+    Action.PauseFlick -> Icons.Rounded.PowerSettingsNew
 }
 
 @get:StringRes

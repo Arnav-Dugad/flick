@@ -13,6 +13,7 @@ import io.github.arnavdugad.flick.trigger.keys.VolumeKeyTriggerSource
 import io.github.arnavdugad.flick.trigger.motion.MotionTriggerSource
 import io.github.arnavdugad.flick.trigger.proximity.ProximityTriggerSource
 import io.github.arnavdugad.flick.trigger.voice.VoiceTriggerSource
+import io.github.arnavdugad.flick.update.UpdateRepository
 import io.github.arnavdugad.flick.vision.CameraController
 import io.github.arnavdugad.flick.vision.VisionPreview
 import kotlinx.coroutines.CoroutineScope
@@ -43,6 +44,8 @@ class AppContainer(val app: Application) {
     val voice: VoiceTriggerSource by lazy { VoiceTriggerSource(app) }
 
     val apps: AppInfoRepository by lazy { AppInfoRepository(app) }
+
+    val updates: UpdateRepository by lazy { UpdateRepository(app, appScope) }
 
     /** System UI, the platform and every installed keyboard: overlays, not apps. */
     private fun transientPackages(): Set<String> {

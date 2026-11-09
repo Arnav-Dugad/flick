@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="update_channel">App updates</string>
+    <string name="update_notification_title">Flick %1$s is available</string>
+    <string name="update_notification_body">Tap to see what\'s new and update.</string>
+
+    <string name="update_banner_title">Update available</string>
+    <string name="update_banner_body">Flick %1$s is ready to install.</string>
+    <string name="update_banner_action">See what\'s new</string>
+
+    <string name="update_sheet_title">Flick %1$s</string>
+    <string name="update_sheet_subtitle">You have %1$s · %2$s download</string>
+    <string name="update_whats_new">What\'s new</string>
+    <string name="update_no_notes">Bug fixes and improvements.</string>
+    <string name="update_install">Update now</string>
+    <string name="update_skip">Skip this version</string>
+    <string name="update_later">Later</string>
+    <string name="update_downloading">Downloading… %1$d%%</string>
+    <string name="update_downloading_unknown">Downloading…</string>
+    <string name="update_cancel">Cancel</string>
+    <string name="update_installing">Installing… Android may ask you to confirm.</string>
+    <string name="update_permission_title">Allow Flick to install updates</string>
+    <string name="update_permission_body">Android asks you once to let Flick install its own updates. Turn on “Allow from this source”, then come back.</string>
+    <string name="update_permission_action">Open settings</string>
+    <string name="update_retry">Try again</string>
+    <string name="update_view_release">Open on GitHub</string>
+    <string name="update_verified_note">Every update is checked against its published SHA-256 checksum and must be signed with the same key as the Flick you have now.</string>
+
+    <string name="update_err_offline">You\'re offline. Connect to the internet and try again.</string>
+    <string name="update_err_rate_limited">GitHub is limiting requests right now. Try again in a little while.</string>
+    <string name="update_err_rate_limited_at">GitHub is limiting requests. Try again after %1$s.</string>
+    <string name="update_err_no_releases">No releases have been published yet.</string>
+    <string name="update_err_invalid">This release looks incomplete, so Flick won\'t install it.</string>
+    <string name="update_err_incompatible">This update needs a newer version of Android.</string>
+    <string name="update_err_checksum">The download didn\'t match its checksum and was deleted. Try again.</string>
+    <string name="update_err_signature">This update isn\'t signed with the same key as your Flick, so Android can\'t install it over this one. Debug builds can\'t be updated from GitHub; install the release from the Releases page.</string>
+    <string name="update_err_storage">Not enough storage space to install the update.</string>
+    <string name="update_err_cancelled">The update was cancelled.</string>
+    <string name="update_err_install">Android couldn\'t install the update.</string>
+    <string name="update_err_unknown">Something went wrong checking for updates.</string>
+
+    <string name="set_updates">Updates</string>
+    <string name="set_update_auto">Check for updates automatically</string>
+    <string name="set_update_auto_body">Once a day, and when you open Flick. The only time Flick uses the internet.</string>
+    <string name="set_update_wifi">Only on Wi-Fi</string>
+    <string name="set_update_wifi_body">Background checks wait for an unmetered network</string>
+    <string name="set_update_notify">Notify me about updates</string>
+    <string name="set_update_notify_body">Needs notification permission</string>
+    <string name="set_update_check_now">Check now</string>
+    <string name="set_update_checking">Checking…</string>
+    <string name="set_update_up_to_date">You\'re on the latest version</string>
+    <string name="set_update_last">Last checked %1$s</string>
+    <string name="set_update_never">Not checked yet</string>
+    <string name="set_update_skipped">Skipped version %1$s. Tap to undo</string>
+    <string name="set_signing">Signing certificate (SHA-256)</string>
+</resources>

@@ -40,6 +40,8 @@ class ActionExecutor(private val service: AccessibilityService) {
             is Action.Global ->
                 action.action.isSupported() && service.performGlobalAction(action.action.platformId())
             is Action.Media -> media.perform(action.command)
+            // Flick-level actions are handled by the engine, not the accessibility layer.
+            Action.AutoScroll, is Action.RunMacro, Action.PauseFlick -> false
         }
     }.getOrDefault(false)
 

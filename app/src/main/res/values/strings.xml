@@ -47,6 +47,7 @@
     <string name="onb_enable_body">Flick needs Android\'s accessibility permission to swipe, tap and press buttons for you, and to know which app is open so it can use the right profile.</string>
     <string name="onb_enable_never">Flick never reads your messages or screen content, and nothing leaves your phone.</string>
     <string name="onb_enable_steps"><![CDATA[In Settings, open <b>Flick</b> (it may be under <i>Installed apps</i> or <i>Downloaded apps</i>), switch it on, then tap <b>Allow</b>.]]></string>
+    <string name="onb_enable_greyed_out">Switch greyed out? Allow restricted settings first</string>
     <string name="onb_enable_waiting">Waiting for Flick to be switched on…</string>
     <string name="onb_enable_ready">Flick is on</string>
     <string name="onb_try_success">Nice, that\'s a wave! Detected %1$d×</string>
@@ -103,6 +104,9 @@
     <string name="act_volume_up">Volume up</string>
     <string name="act_volume_down">Volume down</string>
     <string name="act_mute">Mute / unmute</string>
+    <string name="act_auto_scroll">Auto-scroll on / off</string>
+    <string name="act_run_macro">Run macro</string>
+    <string name="act_pause_flick">Pause Flick</string>
     <string name="act_needs_android">Needs Android %1$s</string>
 
     <!-- Action lab -->
