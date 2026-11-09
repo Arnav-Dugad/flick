@@ -11,7 +11,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -24,6 +23,22 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.rounded.Gesture
+import androidx.compose.material3.Switch
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.semantics.contentDescription
+import io.github.arnavdugad.flick.core.profiles.Profile
+import io.github.arnavdugad.flick.core.profiles.ProfileKind
+import io.github.arnavdugad.flick.core.profiles.ProfileResolver
+import io.github.arnavdugad.flick.ui.components.AppIcon
+import io.github.arnavdugad.flick.ui.components.AppIconStack
+import io.github.arnavdugad.flick.ui.components.appLabel
+import io.github.arnavdugad.flick.ui.navigation.sharedBounds
+import io.github.arnavdugad.flick.ui.screens.profiles.TemplatePickerSheet
+import kotlinx.coroutines.launch
+import java.util.UUID
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.KeyboardArrowRight
 import androidx.compose.material.icons.rounded.Add
@@ -51,7 +66,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
@@ -73,7 +87,6 @@ import io.github.arnavdugad.flick.engine.EngineStatus
 import io.github.arnavdugad.flick.system.AccessibilityStatus
 import io.github.arnavdugad.flick.system.SystemIntents
 import io.github.arnavdugad.flick.trigger.SourceStatus
-import io.github.arnavdugad.flick.ui.actionLabel
 import io.github.arnavdugad.flick.ui.components.BigToggle
 import io.github.arnavdugad.flick.ui.components.FlickCard
 import io.github.arnavdugad.flick.ui.components.IconBadge
@@ -82,7 +95,6 @@ import io.github.arnavdugad.flick.ui.components.rememberPermissionRequest
 import io.github.arnavdugad.flick.ui.components.rememberPermissionSnapshot
 import io.github.arnavdugad.flick.ui.components.triggerProblem
 import io.github.arnavdugad.flick.ui.theme.FlickMotion
-import io.github.arnavdugad.flick.ui.triggerIcon
 import io.github.arnavdugad.flick.ui.triggerLabel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -90,8 +102,8 @@ import io.github.arnavdugad.flick.ui.triggerLabel
 fun HomeScreen(
     onOpenLab: () -> Unit,
     onOpenSettings: () -> Unit,
-    onOpenTriggers: () -> Unit,
-    onOpenTrigger: (TriggerType) -> Unit,
+    onOpenLibrary: () -> Unit,
+    onOpenProfile: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val vm: HomeViewModel = viewModel { HomeViewModel(context.container) }
@@ -122,8 +134,12 @@ fun HomeScreen(
         }
     }
 
-    val bindings = settings?.bindings.orEmpty()
-    val bound = TriggerType.entries.filter { it in bindings }
+    val profiles = settings?.profiles.orEmpty()
+    val used = ProfileResolver.allTriggers(profiles)
+    val bound = TriggerType.entries.filter { it in used }
+    val lastApp by vm.lastApp.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    var showTemplates by remember { mutableStateOf(false) }
     val needsCamera = bound.any { it.requirement == TriggerRequirement.CAMERA } && !permissions.camera
     val needsMic = bound.any { it.requirement == TriggerRequirement.MICROPHONE } && !permissions.microphone
     val cameraStatus = bound.firstOrNull { it.requirement == TriggerRequirement.CAMERA }?.let { statuses[it] }
@@ -205,15 +221,36 @@ fun HomeScreen(
                 }
             }
 
-            item(key = "gestures_h") { SectionHeader(stringResource(R.string.home_gestures_title)) }
-            item(key = "gestures") {
-                GesturesCard(
-                    bound = bound,
-                    labelFor = { t -> bindings[t]?.let { actionLabel(it) }.orEmpty() },
-                    problemFor = { t -> triggerProblem(t, statuses[t], permissions) },
-                    onOpenTrigger = onOpenTrigger,
-                    onManage = onOpenTriggers,
+            item(key = "active") {
+                ActiveCard(
+                    lastApp = lastApp,
+                    profile = lastApp?.let { pkg -> ProfileResolver.resolve(pkg, profiles) },
+                    onOpenProfile = onOpenProfile,
                 )
+            }
+
+            item(key = "profiles_h") { SectionHeader(stringResource(R.string.profiles_title)) }
+            val ordered = profiles.sortedWith(compareBy({ it.kind == ProfileKind.EVERYWHERE }, { !it.enabled }))
+            items(ordered, key = { "p_" + it.id }) { profile ->
+                ProfileCard(
+                    profile = profile,
+                    installed = profile.packages.filter { context.container.apps.isInstalled(it) },
+                    problem = profile.effectiveBindings.keys.firstNotNullOfOrNull { t ->
+                        triggerProblem(t, statuses[t], permissions)
+                    },
+                    onClick = { onOpenProfile(profile.id) },
+                    onEnabled = { on -> scope.launch { context.container.settings.setProfileEnabled(profile.id, on) } },
+                )
+            }
+            item(key = "profiles_new") {
+                FilledTonalButton(
+                    onClick = { showTemplates = true },
+                    modifier = Modifier.heightIn(min = 48.dp),
+                ) {
+                    Icon(Icons.Rounded.Add, null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.profiles_new))
+                }
             }
             item(key = "practice") {
                 PracticeCard(
@@ -226,6 +263,14 @@ fun HomeScreen(
             }
 
             item(key = "tools") { SectionHeader(stringResource(R.string.home_tools_title)) }
+            item(key = "library") {
+                ToolRow(
+                    title = stringResource(R.string.home_library_title),
+                    body = stringResource(R.string.home_library_body),
+                    icon = Icons.Rounded.Gesture,
+                    onClick = onOpenLibrary,
+                )
+            }
             item(key = "lab") {
                 ToolRow(
                     title = stringResource(R.string.home_lab_title),
@@ -244,6 +289,27 @@ fun HomeScreen(
             }
         }
     }
+
+    NewProfileSheetHost(show = showTemplates, onDismiss = { showTemplates = false }, onCreated = onOpenProfile)
+}
+
+@Composable
+private fun NewProfileSheetHost(show: Boolean, onDismiss: () -> Unit, onCreated: (String) -> Unit) {
+    if (!show) return
+    val container = LocalContext.current.container
+    val scope = rememberCoroutineScope()
+    TemplatePickerSheet(
+        onPick = { template ->
+            onDismiss()
+            val id = UUID.randomUUID().toString()
+            scope.launch {
+                container.settings.upsertProfile(template.toProfile(id = id).copy(packages = emptySet(), enabled = true))
+                if (template.packages.isNotEmpty()) container.settings.setProfilePackages(id, template.packages)
+                onCreated(id)
+            }
+        },
+        onDismiss = onDismiss,
+    )
 }
 
 @Composable
@@ -324,60 +390,106 @@ private fun NoticeCard(
 }
 
 @Composable
-private fun GesturesCard(
-    bound: List<TriggerType>,
-    labelFor: @Composable (TriggerType) -> String,
-    problemFor: @Composable (TriggerType) -> String?,
-    onOpenTrigger: (TriggerType) -> Unit,
-    onManage: () -> Unit,
-) {
-    FlickCard(contentPadding = PaddingValues(vertical = 8.dp)) {
-        if (bound.isEmpty()) {
-            Text(
-                stringResource(R.string.home_gestures_empty),
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-            )
+private fun ActiveCard(lastApp: String?, profile: Profile?, onOpenProfile: (String) -> Unit) {
+    FlickCard(
+        onClick = profile?.let { p -> { onOpenProfile(p.id) } },
+        color = MaterialTheme.colorScheme.surfaceContainer,
+    ) {
+        Text(
+            stringResource(R.string.active_title),
+            style = MaterialTheme.typography.labelLarge,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        Spacer(Modifier.height(8.dp))
+        if (lastApp == null) {
+            Text(stringResource(R.string.active_none), style = MaterialTheme.typography.bodyMedium)
+            return@FlickCard
         }
-        for (t in bound) {
-            val problem = problemFor(t)
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(MaterialTheme.shapes.medium)
-                    .clickable { onOpenTrigger(t) }
-                    .heightIn(min = 64.dp)
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-            ) {
-                IconBadge(
-                    triggerIcon(t),
-                    size = 40.dp,
-                    container = MaterialTheme.colorScheme.primaryContainer,
-                    content = MaterialTheme.colorScheme.onPrimaryContainer,
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            AppIcon(lastApp, size = 44.dp)
+            Spacer(Modifier.width(16.dp))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.active_last_app, appLabel(lastApp)),
+                    style = MaterialTheme.typography.titleMedium,
                 )
-                Spacer(Modifier.width(16.dp))
-                Column(Modifier.weight(1f)) {
-                    Text(triggerLabel(t), style = MaterialTheme.typography.titleMedium)
-                    Text(
-                        problem ?: labelFor(t),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = if (problem != null) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
+                Text(
+                    if (profile != null) {
+                        stringResource(R.string.active_profile, profile.name)
+                    } else {
+                        stringResource(R.string.active_no_profile)
+                    },
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (profile != null) {
                 Icon(Icons.AutoMirrored.Rounded.KeyboardArrowRight, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
-        FilledTonalButton(
-            onClick = onManage,
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .heightIn(min = 48.dp),
-        ) {
-            Icon(Icons.Rounded.Add, null)
-            Spacer(Modifier.width(8.dp))
-            Text(stringResource(R.string.home_gestures_manage))
+    }
+}
+
+@Composable
+private fun ProfileCard(
+    profile: Profile,
+    installed: List<String>,
+    problem: String?,
+    onClick: () -> Unit,
+    onEnabled: (Boolean) -> Unit,
+) {
+    val enabledCd = stringResource(R.string.profile_enabled_cd, profile.name)
+    val bg by animateColorAsState(
+        if (profile.enabled) MaterialTheme.colorScheme.surfaceContainerLow else MaterialTheme.colorScheme.surfaceContainerLowest,
+        FlickMotion.effects(),
+        label = "profileBg",
+    )
+    FlickCard(
+        onClick = onClick,
+        color = bg,
+        modifier = Modifier.sharedBounds("profile-${profile.id}"),
+        contentPadding = PaddingValues(horizontal = 20.dp, vertical = 16.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                Text(
+                    profile.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = if (profile.enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(6.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (installed.isNotEmpty()) {
+                        AppIconStack(installed)
+                        Spacer(Modifier.width(4.dp))
+                    }
+                    Text(
+                        when {
+                            problem != null && profile.enabled -> problem
+                            profile.kind == ProfileKind.EVERYWHERE ||
+                                installed.isNotEmpty() -> pluralStringResource(
+                                R.plurals.profile_gesture_count,
+                                profile.bindings.size,
+                                profile.bindings.size,
+                            )
+                            profile.packages.isEmpty() -> stringResource(R.string.profile_no_apps)
+                            else -> stringResource(R.string.profile_not_installed)
+                        },
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = if (problem != null && profile.enabled) {
+                            MaterialTheme.colorScheme.error
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
+                    )
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+            Switch(
+                checked = profile.enabled,
+                onCheckedChange = onEnabled,
+                modifier = Modifier.semantics { contentDescription = enabledCd },
+            )
         }
     }
 }

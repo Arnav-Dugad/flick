@@ -2,6 +2,7 @@ package io.github.arnavdugad.flick.engine
 
 import io.github.arnavdugad.flick.core.model.Action
 import io.github.arnavdugad.flick.core.model.TriggerType
+import io.github.arnavdugad.flick.core.profiles.Profile
 import io.github.arnavdugad.flick.system.ScreenState
 
 enum class EngineStatus {
@@ -26,6 +27,8 @@ data class EngineState(
     /** Trigger shown on the calibration screen; it listens even if unbound, and no actions run. */
     val calibrating: TriggerType? = null,
     val foregroundPackage: String? = null,
+    /** Profile for the app in front; null outside any profile (or inside Flick itself). */
+    val activeProfile: Profile? = null,
 ) {
     val status: EngineStatus
         get() = when {
@@ -39,10 +42,22 @@ data class EngineState(
     val actionsEnabled: Boolean
         get() = status == EngineStatus.ACTIVE && !practiceMode && calibrating == null
 
-    /** The triggers that should be listening, given the bound ones. */
-    fun wantedTriggers(bound: Set<TriggerType>): Set<TriggerType> {
+    /** Bindings that apply right now. */
+    val activeBindings: Map<TriggerType, Action>
+        get() = activeProfile?.effectiveBindings.orEmpty()
+
+    /**
+     * The triggers that should be listening. Normally only the active profile's; while practising,
+     * every enabled profile's (so any of your gestures can be tried from Flick's own screen).
+     * The camera and microphone therefore only run inside apps that have a profile using them.
+     */
+    fun wantedTriggers(practiceSet: Set<TriggerType>): Set<TriggerType> {
         if (!screen.usable) return emptySet()
-        val base = if (status == EngineStatus.ACTIVE || practiceMode) bound else emptySet()
+        val base = when {
+            practiceMode -> practiceSet
+            status == EngineStatus.ACTIVE -> activeBindings.keys
+            else -> emptySet()
+        }
         return if (calibrating != null) base + calibrating else base
     }
 }

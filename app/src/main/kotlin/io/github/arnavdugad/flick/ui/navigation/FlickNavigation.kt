@@ -5,8 +5,12 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.SharedTransitionLayout
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import io.github.arnavdugad.flick.ui.screens.profiles.ProfileEditorScreen
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
+import androidx.navigation3.runtime.NavBackStack
 import androidx.navigation3.runtime.NavKey
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -38,12 +42,24 @@ data object SettingsKey : NavKey
 data object TriggersKey : NavKey
 
 @Serializable
-data class TriggerDetailKey(val type: TriggerType) : NavKey
+data class TriggerDetailKey(val type: TriggerType, val profileId: String? = null) : NavKey
+
+@Serializable
+data class ProfileKey(val id: String) : NavKey
 
 @Composable
 fun FlickNavigation(startWithOnboarding: Boolean) {
     val backStack = rememberNavBackStack(if (startWithOnboarding) OnboardingKey else HomeKey)
 
+    SharedTransitionLayout {
+        CompositionLocalProvider(LocalSharedTransitionScope provides this) {
+            FlickNavDisplay(backStack)
+        }
+    }
+}
+
+@Composable
+private fun FlickNavDisplay(backStack: NavBackStack<NavKey>) {
     NavDisplay(
         backStack = backStack,
         onBack = { if (backStack.size > 1) backStack.removeAt(backStack.lastIndex) },
@@ -76,8 +92,8 @@ fun FlickNavigation(startWithOnboarding: Boolean) {
                 HomeScreen(
                     onOpenLab = { backStack.add(ActionLabKey) },
                     onOpenSettings = { backStack.add(SettingsKey) },
-                    onOpenTriggers = { backStack.add(TriggersKey) },
-                    onOpenTrigger = { backStack.add(TriggerDetailKey(it)) },
+                    onOpenLibrary = { backStack.add(TriggersKey) },
+                    onOpenProfile = { backStack.add(ProfileKey(it)) },
                 )
             }
             entry<TriggersKey> {
@@ -87,7 +103,22 @@ fun FlickNavigation(startWithOnboarding: Boolean) {
                 )
             }
             entry<TriggerDetailKey> { key ->
-                TriggerDetailScreen(type = key.type, onBack = { backStack.removeAt(backStack.lastIndex) })
+                TriggerDetailScreen(
+                    type = key.type,
+                    profileId = key.profileId,
+                    onBack = { backStack.removeAt(backStack.lastIndex) },
+                )
+            }
+            entry<ProfileKey> { key ->
+                ProfileEditorScreen(
+                    profileId = key.id,
+                    onBack = { if (backStack.lastOrNull() == key) backStack.removeAt(backStack.lastIndex) },
+                    onOpenTrigger = { t, p -> backStack.add(TriggerDetailKey(t, p)) },
+                    onOpenProfile = {
+                        backStack.removeAt(backStack.lastIndex)
+                        backStack.add(ProfileKey(it))
+                    },
+                )
             }
             entry<ActionLabKey> {
                 ActionLabScreen(onBack = { backStack.removeAt(backStack.lastIndex) })

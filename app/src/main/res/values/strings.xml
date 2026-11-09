@@ -9,6 +9,8 @@
     <!-- Common -->
     <string name="action_continue">Continue</string>
     <string name="action_skip">Skip for now</string>
+    <string name="action_done">Done</string>
+    <string name="action_cancel">Cancel</string>
     <string name="action_back">Back</string>
     <string name="action_open_settings">Open settings</string>
     <string name="action_finish">Finish</string>
@@ -152,9 +154,6 @@
     <!-- M2: home -->
     <string name="home_try_body">Practise your gestures without anything happening on screen.</string>
     <string name="home_try_waiting">Waiting for a gesture…</string>
-    <string name="home_gestures_title">Your gestures</string>
-    <string name="home_gestures_empty">No gestures set up yet. Add one to start.</string>
-    <string name="home_gestures_manage">Add or change gestures</string>
     <string name="home_perm_camera_title">Allow camera access</string>
     <string name="home_perm_camera_body">Some of your gestures use the front camera. Frames are analysed in memory and never saved or sent.</string>
     <string name="home_perm_mic_title">Allow microphone access</string>

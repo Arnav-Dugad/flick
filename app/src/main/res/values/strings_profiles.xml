@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profiles_title">Profiles</string>
+    <string name="profiles_new">New profile</string>
+    <string name="profiles_start_from">Start from</string>
+    <plurals name="profile_gesture_count">
+        <item quantity="one">%1$d gesture</item>
+        <item quantity="other">%1$d gestures</item>
+    </plurals>
+    <string name="profile_no_apps">No apps yet</string>
+    <string name="profile_not_installed">None of its apps are installed</string>
+    <string name="profile_everywhere_body">Applies in every app without its own profile. For your privacy, camera and voice gestures can\'t be used here.</string>
+    <string name="profile_enabled_cd">%1$s profile</string>
+    <string name="profile_name">Name</string>
+    <string name="profile_apps">Apps</string>
+    <string name="profile_add_apps">Add apps</string>
+    <string name="profile_remove_app_cd">Remove %1$s</string>
+    <string name="profile_gestures">Gestures</string>
+    <string name="profile_add_gesture">Add gesture</string>
+    <string name="profile_no_gestures">No gestures yet. Add one and choose what it does.</string>
+    <string name="profile_tune_cd">Test and tune %1$s</string>
+    <string name="profile_remove_gesture_cd">Remove %1$s</string>
+    <string name="profile_duplicate">Duplicate</string>
+    <string name="profile_delete">Delete profile</string>
+    <string name="profile_delete_confirm">Delete “%1$s”? Its gestures will be removed.</string>
+    <string name="profile_copy_suffix">%1$s (copy)</string>
+    <string name="profile_more_cd">More options</string>
+    <string name="profile_pick_gesture">Add a gesture</string>
+    <string name="profile_gesture_unavailable_here">Not available in “Everywhere else”</string>
+    <string name="profile_gesture_already">Already in this profile</string>
+    <string name="profile_app_search">Search apps</string>
+    <string name="profile_app_in_other">Used in “%1$s”. Selecting it moves it here.</string>
+    <string name="profile_no_app_results">No apps match</string>
+
+    <string name="active_title">Active now</string>
+    <string name="active_last_app">Last app: %1$s</string>
+    <string name="active_profile">Profile: %1$s</string>
+    <string name="active_none">Open an app with a profile, like Instagram or Kindle, and Flick takes over.</string>
+    <string name="active_no_profile">No profile for this app. Add it to a profile to use gestures there.</string>
+
+    <string name="home_library_title">Gesture library</string>
+    <string name="home_library_body">Test and tune every gesture</string>
+    <string name="library_used_in">Used in %1$s</string>
+    <string name="library_unused">Not used in any profile</string>
+
+    <string name="detail_used_in">Used in profiles</string>
+    <string name="detail_not_used">Not used in any profile yet. Add it from a profile.</string>
+    <string name="detail_profile_does">In “%1$s”, this does</string>
+</resources>

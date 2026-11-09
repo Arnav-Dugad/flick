@@ -24,6 +24,8 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
 
     val statuses: StateFlow<Map<TriggerType, SourceStatus>> = engine.statuses
 
+    val lastApp: StateFlow<String?> = engine.lastApp
+
     /** Live trigger events (no replay). */
     val events: SharedFlow<FiredTrigger> = engine.events
 

@@ -93,10 +93,8 @@
     <!-- Gesture list -->
     <string name="triggers_title">Gestures</string>
     <string name="triggers_intro">Pick a gesture, choose what it does, and tune it until it feels right.</string>
-    <string name="trigger_off">Off</string>
 
     <!-- Gesture detail / calibration -->
-    <string name="detail_does">Does</string>
     <string name="detail_none">Nothing</string>
     <string name="detail_turn_off">Turn off</string>
     <string name="detail_live">Live</string>

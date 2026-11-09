@@ -7,6 +7,8 @@ import android.view.KeyEvent
 import io.github.arnavdugad.flick.action.ActionExecutor
 import io.github.arnavdugad.flick.core.model.Action
 import io.github.arnavdugad.flick.core.model.TriggerType
+import io.github.arnavdugad.flick.core.profiles.ForegroundTracker
+import io.github.arnavdugad.flick.core.profiles.ProfileResolver
 import io.github.arnavdugad.flick.data.FlickSettings
 import io.github.arnavdugad.flick.data.SettingsRepository
 import io.github.arnavdugad.flick.feedback.Haptics
@@ -50,6 +52,10 @@ class FlickEngine(
     private val sources: List<TriggerSource>,
     private val volumeKeys: VolumeKeyTriggerSource,
     private val scope: CoroutineScope,
+    /** Flick's own package: nothing ever runs while Flick itself is in front. */
+    private val ownPackage: String,
+    /** Overlays that don't count as switching apps (system UI, keyboards). */
+    transientPackages: Set<String>,
 ) {
 
     private val main = Handler(Looper.getMainLooper())
@@ -57,6 +63,7 @@ class FlickEngine(
     private val practice = MutableStateFlow(false)
     private val calibrating = MutableStateFlow<TriggerType?>(null)
     private val foreground = MutableStateFlow<String?>(null)
+    private val foregroundTracker = ForegroundTracker(transientPackages)
     private var latestSettings = FlickSettings()
 
     private val sourceByTrigger: Map<TriggerType, TriggerSource> =
@@ -73,6 +80,9 @@ class FlickEngine(
             calibrating = calibrated,
         )
     }.combine(foreground) { st, pkg -> st.copy(foregroundPackage = pkg) }
+        .combine(settings.settings) { st, s ->
+            st.copy(activeProfile = ProfileResolver.resolve(st.foregroundPackage, s.profiles, setOf(ownPackage)))
+        }
         .stateIn(scope, SharingStarted.Eagerly, EngineState())
 
     /** Live status of the source behind every trigger. */
@@ -95,7 +105,7 @@ class FlickEngine(
 
     init {
         scope.launch {
-            combine(state, settings.settings) { st, s -> Plan(st.wantedTriggers(s.bindings.keys), s) }
+            combine(state, settings.settings) { st, s -> Plan(st.wantedTriggers(ProfileResolver.allTriggers(s.profiles)), s) }
                 .distinctUntilChanged { a, b ->
                     a.wanted == b.wanted && a.settings.tuning == b.settings.tuning &&
                         a.settings.volumeHoldAdjusts == b.settings.volumeHoldAdjusts
@@ -128,10 +138,20 @@ class FlickEngine(
         if (bridge.value === serviceBridge) bridge.value = null
     }
 
-    private fun currentWanted(): Set<TriggerType> = state.value.wantedTriggers(latestSettings.bindings.keys)
+    private fun currentWanted(): Set<TriggerType> =
+        state.value.wantedTriggers(ProfileResolver.allTriggers(latestSettings.profiles))
+
+    private val _lastApp = MutableStateFlow<String?>(null)
+
+    /** The most recent app in front other than Flick itself, for the Home screen. */
+    val lastApp: StateFlow<String?> = _lastApp
 
     fun onWindowStateChanged(packageName: String) {
-        foreground.value = packageName
+        if (foregroundTracker.onWindow(packageName)) {
+            val pkg = foregroundTracker.current
+            foreground.value = pkg
+            if (pkg != null && pkg != ownPackage) _lastApp.value = pkg
+        }
     }
 
     /** From the accessibility service's key filter. Returns true to consume the key. */
@@ -174,8 +194,8 @@ class FlickEngine(
     private fun onTrigger(trigger: TriggerType) {
         val current = state.value
         val s = latestSettings
-        if (trigger !in current.wantedTriggers(s.bindings.keys)) return
-        val action = s.bindings[trigger]
+        if (trigger !in current.wantedTriggers(ProfileResolver.allTriggers(s.profiles))) return
+        val action = current.activeBindings[trigger]
         val toRun = action?.takeIf { current.actionsEnabled }
         if (s.haptics) {
             if (toRun != null) haptics.confirm() else haptics.tick()

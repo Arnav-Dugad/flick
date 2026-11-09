@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.material3.FilterChip
 import io.github.arnavdugad.flick.core.model.Actions
+import io.github.arnavdugad.flick.core.profiles.ProfileTemplates
 import io.github.arnavdugad.flick.trigger.SourceStatus
 import io.github.arnavdugad.flick.ui.components.IconBadge
 import io.github.arnavdugad.flick.ui.components.permission
@@ -447,7 +448,10 @@ private fun TryStep(onFinish: () -> Unit) {
         primaryLabel = stringResource(R.string.action_finish),
         onPrimary = {
             scope.launch {
-                container.settings.setBinding(selected, Actions.Next)
+                // The first gesture goes into the Reels & Shorts profile, the most common use.
+                val reels = ProfileTemplates.REELS.id
+                container.settings.setBinding(reels, selected, Actions.Next)
+                container.settings.setProfileEnabled(reels, true)
                 onFinish()
             }
         },

@@ -1,6 +1,8 @@
 package io.github.arnavdugad.flick.di
 
 import android.app.Application
+import android.view.inputmethod.InputMethodManager
+import io.github.arnavdugad.flick.data.AppInfoRepository
 import io.github.arnavdugad.flick.data.SettingsRepository
 import io.github.arnavdugad.flick.engine.FlickEngine
 import io.github.arnavdugad.flick.feedback.Haptics
@@ -40,6 +42,16 @@ class AppContainer(val app: Application) {
     val hand: HandTriggerSource by lazy { HandTriggerSource(app, camera, appScope, visionPreview) }
     val voice: VoiceTriggerSource by lazy { VoiceTriggerSource(app) }
 
+    val apps: AppInfoRepository by lazy { AppInfoRepository(app) }
+
+    /** System UI, the platform and every installed keyboard: overlays, not apps. */
+    private fun transientPackages(): Set<String> {
+        val imes = runCatching {
+            app.getSystemService(InputMethodManager::class.java)?.inputMethodList?.map { it.packageName }
+        }.getOrNull().orEmpty()
+        return setOf("com.android.systemui", "android") + imes
+    }
+
     val engine: FlickEngine by lazy {
         FlickEngine(
             settings = settings,
@@ -48,6 +60,8 @@ class AppContainer(val app: Application) {
             sources = listOf(proximity, motion, volumeKeys, face, hand, voice),
             volumeKeys = volumeKeys,
             scope = appScope,
+            ownPackage = app.packageName,
+            transientPackages = transientPackages(),
         )
     }
 }

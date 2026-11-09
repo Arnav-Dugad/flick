@@ -35,7 +35,6 @@ import io.github.arnavdugad.flick.container
 import io.github.arnavdugad.flick.core.model.TriggerCategory
 import io.github.arnavdugad.flick.core.model.TriggerType
 import io.github.arnavdugad.flick.data.FlickSettings
-import io.github.arnavdugad.flick.ui.actionLabel
 import io.github.arnavdugad.flick.ui.components.FlickCard
 import io.github.arnavdugad.flick.ui.components.IconBadge
 import io.github.arnavdugad.flick.ui.components.SectionHeader
@@ -94,13 +93,19 @@ fun TriggersScreen(onBack: () -> Unit, onOpenTrigger: (TriggerType) -> Unit) {
                     FlickCard(contentPadding = PaddingValues(vertical = 6.dp)) {
                         Column {
                             for (type in types) {
-                                val action = settings.bindings[type]
+                                val usedIn = settings.profiles.filter { type in it.bindings }
+                                val action = usedIn.firstOrNull()?.bindings?.get(type)
                                 val problem = triggerProblem(type, statuses[type], permissions)
                                 ListItem(
                                     headlineContent = { Text(triggerLabel(type)) },
                                     supportingContent = {
                                         Text(
-                                            problem ?: action?.let { actionLabel(it) } ?: stringResource(R.string.trigger_off),
+                                            problem
+                                                ?: if (usedIn.isNotEmpty()) {
+                                                    stringResource(R.string.library_used_in, usedIn.joinToString { it.name })
+                                                } else {
+                                                    stringResource(R.string.library_unused)
+                                                },
                                             color = when {
                                                 problem != null && action != null -> MaterialTheme.colorScheme.error
                                                 action != null -> MaterialTheme.colorScheme.primary

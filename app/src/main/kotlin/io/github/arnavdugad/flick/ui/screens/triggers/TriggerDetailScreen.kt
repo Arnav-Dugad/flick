@@ -65,6 +65,7 @@ import io.github.arnavdugad.flick.core.model.TriggerRequirement
 import io.github.arnavdugad.flick.core.model.TriggerSpecs
 import io.github.arnavdugad.flick.core.model.TriggerTuning
 import io.github.arnavdugad.flick.core.model.TriggerType
+import io.github.arnavdugad.flick.core.profiles.ProfileResolver
 import io.github.arnavdugad.flick.data.FlickSettings
 import io.github.arnavdugad.flick.ui.actionIcon
 import io.github.arnavdugad.flick.ui.actionLabel
@@ -88,7 +89,7 @@ import kotlin.math.roundToInt
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TriggerDetailScreen(type: TriggerType, onBack: () -> Unit) {
+fun TriggerDetailScreen(type: TriggerType, profileId: String?, onBack: () -> Unit) {
     val context = LocalContext.current
     val container = context.container
     val engine = container.engine
@@ -130,7 +131,8 @@ fun TriggerDetailScreen(type: TriggerType, onBack: () -> Unit) {
 
     var showPicker by remember { mutableStateOf(false) }
     val s = settings ?: FlickSettings()
-    val binding = s.bindings[type]
+    val profile = profileId?.let { s.profile(it) }
+    val binding = profile?.bindings?.get(type)
     val saved = s.tuningFor(type)
     var draft by remember(saved) { mutableStateOf(saved) }
     fun save(t: TriggerTuning) = scope.launch { container.settings.setTuning(type, t) }
@@ -173,11 +175,13 @@ fun TriggerDetailScreen(type: TriggerType, onBack: () -> Unit) {
                 }
             }
 
-            item(key = "does") {
+            if (profile == null) {
+                item(key = "used") { UsedInCard(type, s) }
+            } else item(key = "does") {
                 FlickCard {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            stringResource(R.string.detail_does),
+                            stringResource(R.string.detail_profile_does, profile.name),
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.weight(1f),
                         )
@@ -191,7 +195,7 @@ fun TriggerDetailScreen(type: TriggerType, onBack: () -> Unit) {
                         )
                     }
                     if (binding != null) {
-                        TextButton(onClick = { scope.launch { container.settings.setBinding(type, null) } }) {
+                        TextButton(onClick = { scope.launch { container.settings.setBinding(profile.id, type, null) } }) {
                             Text(stringResource(R.string.detail_turn_off))
                         }
                     }
@@ -276,7 +280,7 @@ fun TriggerDetailScreen(type: TriggerType, onBack: () -> Unit) {
                 }
             }
 
-            hintFor(type, s)?.let { hint ->
+            hintFor(type, profile?.bindings?.keys ?: ProfileResolver.allTriggers(s.profiles))?.let { hint ->
                 item(key = "hint") {
                     FlickCard(color = MaterialTheme.colorScheme.secondaryContainer) {
                         Text(
@@ -295,7 +299,7 @@ fun TriggerDetailScreen(type: TriggerType, onBack: () -> Unit) {
             title = triggerLabel(type),
             selected = binding,
             onSelect = {
-                scope.launch { container.settings.setBinding(type, it) }
+                profile?.let { p -> scope.launch { container.settings.setBinding(p.id, type, it) } }
                 showPicker = false
             },
             onDismiss = { showPicker = false },
@@ -306,13 +310,37 @@ fun TriggerDetailScreen(type: TriggerType, onBack: () -> Unit) {
 private val TriggerType.supportsNeutral: Boolean
     get() = name.startsWith("HEAD_") || name.startsWith("PHONE_TILT_")
 
-private fun hintFor(type: TriggerType, s: FlickSettings): Int? = when {
+private fun hintFor(type: TriggerType, used: Set<TriggerType>): Int? = when {
     type == TriggerType.PROXIMITY_WAVE -> R.string.detail_proximity_virtual
     (type == TriggerType.HEAD_TILT_DOWN || type == TriggerType.HEAD_TILT_UP) &&
-        TriggerType.HEAD_NOD in s.bindings -> R.string.detail_nod_conflict
+        TriggerType.HEAD_NOD in used -> R.string.detail_nod_conflict
     type.requirement == TriggerRequirement.KEYS -> R.string.detail_volume_hint
     type.requirement == TriggerRequirement.MICROPHONE -> R.string.detail_voice_hint
     else -> null
+}
+
+@Composable
+private fun UsedInCard(type: TriggerType, s: FlickSettings) {
+    val uses = s.profiles.mapNotNull { p -> p.bindings[type]?.let { p to it } }
+    FlickCard {
+        Text(stringResource(R.string.detail_used_in), style = MaterialTheme.typography.titleMedium)
+        Spacer(Modifier.height(8.dp))
+        if (uses.isEmpty()) {
+            Text(
+                stringResource(R.string.detail_not_used),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        for ((p, action) in uses) {
+            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.padding(vertical = 4.dp)) {
+                Text(p.name, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
+                Icon(actionIcon(action), null, Modifier.size(18.dp), tint = MaterialTheme.colorScheme.primary)
+                Spacer(Modifier.width(6.dp))
+                Text(actionLabel(action), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
+            }
+        }
+    }
 }
 
 @Composable
