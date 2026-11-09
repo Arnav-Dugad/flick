@@ -302,3 +302,20 @@ From official release pages, read 2026-11-09:
 | Local machine | SDK platforms 34–37 + build-tools 37.0.0 installed. JDK 26 on PATH, Android Studio JBR 25 available. |
 
 Exact patch versions are re-checked when the Gradle project is created (M1).
+
+---
+
+## Appendix: verified on a real device (Galaxy S23+ SM-S916B, Android 17 / API 37, 2026-11-09)
+
+- **Camera from the AccessibilityService while other apps are in front: works.** CameraService logs show Flick's
+  process moving from proc state 2 (top) to 5 (bound foreground service, from the accessibility binding) when
+  Instagram is opened; the camera stream continues without errors and Open palm / Smile fire in Reels. No camera
+  foreground service is needed. The fallback in §3 stays documented but unused.
+- **Proximity:** the only `TYPE_PROXIMITY` sensor apps can use is Samsung's virtual "Palm Proximity Sensor version 2"
+  (the physical STK33911 needs `com.samsung.permission.SSENSOR`). It reacts to skin on the glass, not to a hand
+  passing above, so Flick marks it unsupported (name contains "palm"/"touch proximity").
+- **Accelerometer rate:** `SENSOR_DELAY_FASTEST` throws `SecurityException` for apps targeting Android 12+ without
+  `HIGH_SAMPLING_RATE_SENSORS`; an explicit 5 000 µs period (200 Hz) is accepted (~212 samples/s measured).
+- **Knock vs screen-tap signature** (linear Z acceleration, hand-held): knocks on the back peak at +7…+10 m/s² and
+  ring symmetrically; screen taps are one-sided, −5…−14 m/s² with ≤ +3.7 m/s² rebound. Flick classifies impacts by
+  shape (positive peak ≥ threshold and ≥ half the negative peak).

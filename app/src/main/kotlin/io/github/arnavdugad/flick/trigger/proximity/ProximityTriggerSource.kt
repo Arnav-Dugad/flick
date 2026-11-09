@@ -36,7 +36,21 @@ class ProximityTriggerSource(context: Context) : TriggerSource, SensorEventListe
     /** Name of the sensor, shown in diagnostics (some phones only offer a virtual one). */
     val sensorName: String? get() = sensor?.name
 
-    private val _status = MutableStateFlow(if (sensor == null) SourceStatus.NO_HARDWARE else SourceStatus.READY)
+    /**
+     * Some phones (e.g. recent Samsung Galaxy models) only expose a virtual "palm"/"touch"
+     * proximity sensor to apps, which reacts to skin on the glass but not to a hand passing above.
+     */
+    val isTouchOnly: Boolean = sensor?.name?.let { n ->
+        TOUCH_ONLY_HINTS.any { n.contains(it, ignoreCase = true) }
+    } ?: false
+
+    private val _status = MutableStateFlow(
+        when {
+            sensor == null -> SourceStatus.NO_HARDWARE
+            isTouchOnly -> SourceStatus.UNSUPPORTED
+            else -> SourceStatus.READY
+        },
+    )
     override val status: StateFlow<SourceStatus> = _status.asStateFlow()
 
     override val triggers: Set<TriggerType> = setOf(TriggerType.PROXIMITY_WAVE)
@@ -45,6 +59,7 @@ class ProximityTriggerSource(context: Context) : TriggerSource, SensorEventListe
 
     override fun start(active: Set<TriggerType>, tuning: (TriggerType) -> TriggerTuning, sink: TriggerSink) {
         val s = sensor ?: return
+        if (isTouchOnly) return
         val t = tuning(TriggerType.PROXIMITY_WAVE)
         detector.config = WaveDetector.Config(
             minCoverMs = 30,
@@ -72,7 +87,7 @@ class ProximityTriggerSource(context: Context) : TriggerSource, SensorEventListe
         sink = null
         detector.reset()
         _near.value = false
-        _status.value = SourceStatus.READY
+        _status.value = if (isTouchOnly) SourceStatus.UNSUPPORTED else SourceStatus.READY
     }
 
     override fun level(type: TriggerType): Float = if (_near.value) 1f else 0f
@@ -91,5 +106,6 @@ class ProximityTriggerSource(context: Context) : TriggerSource, SensorEventListe
 
     private companion object {
         const val NEAR_CM = 5f
+        val TOUCH_ONLY_HINTS = listOf("palm", "touch proximity")
     }
 }

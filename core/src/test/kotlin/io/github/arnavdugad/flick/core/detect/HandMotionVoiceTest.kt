@@ -122,27 +122,75 @@ class MotionDetectorTest {
         assertEquals(listOf(TriggerType.PHONE_SHAKE), fired)
     }
 
-    @Test
-    fun `two sharp knocks fire a double knock`() {
-        val d = detector(TriggerType.BACK_DOUBLE_KNOCK, TriggerType.BACK_TRIPLE_KNOCK)
+    /** Drives a detector at 200 Hz with an upright, still phone plus injected Z impulses. */
+    private class KnockRig(val d: MotionDetector) {
         val fired = mutableListOf<TriggerType>()
         var t = 0L
-        fun still(until: Long) {
+        private val g = 9.81f
+
+        fun still(ms: Long) {
+            val until = t + ms
             while (t < until) {
                 fired += d.onAccel(0f, g * 0.8f, g * 0.6f, t)
                 t += 5
             }
         }
-        fun knock() {
-            fired += d.onAccel(0f, g * 0.8f, g * 0.6f + 6f, t)
-            t += 5
+
+        /** Plays a Z impulse shape (m/s² offsets, one per 5 ms sample). */
+        fun impulse(vararg z: Float) {
+            for (v in z) {
+                fired += d.onAccel(0f, g * 0.8f, g * 0.6f + v, t)
+                t += 5
+            }
         }
-        still(2_000)
-        knock()
-        still(2_200)
-        knock()
-        still(3_000)
-        assertEquals(listOf(TriggerType.BACK_DOUBLE_KNOCK), fired)
+
+        // Shapes recorded on a Galaxy S23+: knocks ring both ways; screen taps are mostly negative.
+        fun knock() = impulse(8f, -7f, 5f, -4f, 2f, -1f)
+        fun screenTap() = impulse(-9f, -6f, 2.5f, -2f, 1f)
+    }
+
+    @Test
+    fun `two knocks fire a double knock`() {
+        val rig = KnockRig(detector(TriggerType.BACK_DOUBLE_KNOCK, TriggerType.BACK_TRIPLE_KNOCK))
+        rig.still(2_000)
+        rig.knock()
+        rig.still(220)
+        rig.knock()
+        rig.still(1_000)
+        assertEquals(listOf(TriggerType.BACK_DOUBLE_KNOCK), rig.fired)
+    }
+
+    @Test
+    fun `three knocks fire a triple knock`() {
+        val rig = KnockRig(detector(TriggerType.BACK_DOUBLE_KNOCK, TriggerType.BACK_TRIPLE_KNOCK))
+        rig.still(2_000)
+        repeat(3) {
+            rig.knock()
+            rig.still(220)
+        }
+        rig.still(1_000)
+        assertEquals(listOf(TriggerType.BACK_TRIPLE_KNOCK), rig.fired)
+    }
+
+    @Test
+    fun `ringing from one knock counts once`() {
+        val rig = KnockRig(detector(TriggerType.BACK_DOUBLE_KNOCK))
+        rig.still(2_000)
+        rig.knock()
+        rig.still(1_000)
+        assertTrue(rig.fired.isEmpty()) // a single knock is not a double
+    }
+
+    @Test
+    fun `tapping the screen is not a knock`() {
+        val rig = KnockRig(detector(TriggerType.BACK_DOUBLE_KNOCK, TriggerType.BACK_TRIPLE_KNOCK))
+        rig.still(2_000)
+        repeat(6) {
+            rig.screenTap()
+            rig.still(200)
+        }
+        rig.still(1_000)
+        assertTrue(rig.fired.isEmpty(), "fired=${rig.fired}")
     }
 }
 

@@ -27,6 +27,12 @@ class MotionDetector {
     private val knock = KnockDetector(threshold = 0.3f, cooldownMs = 800)
     private val levels = HashMap<TriggerType, Float>()
 
+    /** Latest linear acceleration (m/s², gravity removed), for diagnostics. */
+    val linear = FloatArray(3)
+
+    /** Smoothed motion energy used to reject knocks while the phone is moving. */
+    val motionEnergy: Float get() = stillness
+
     /** True when knocks are wanted; the sensor then needs its fastest rate. */
     val needsHighRate: Boolean get() = active.any { it in KNOCKS }
 
@@ -80,6 +86,9 @@ class MotionDetector {
         val ly = y - gravity[1]
         val lz = z - gravity[2]
         val linear = sqrt(lx * lx + ly * ly + lz * lz)
+        this.linear[0] = lx
+        this.linear[1] = ly
+        this.linear[2] = lz
 
         val fired = ArrayList<TriggerType>(1)
 
@@ -104,13 +113,14 @@ class MotionDetector {
             fired += TriggerType.PHONE_SHAKE
         }
 
-        // Knocks on the back push the phone towards the user: a sharp positive Z impulse,
-        // only counted when the phone was otherwise still (rejects walking and shaking).
-        val impulse = (lz / KNOCK_FULL_SCALE).coerceIn(0f, 1f)
+        // Knocks: classified by impulse shape (see KnockDetector), only counted when the phone was
+        // otherwise still (rejects walking and shaking).
+        val zNorm = (lz / KNOCK_FULL_SCALE).coerceIn(-1f, 1f)
+        val impulse = zNorm.coerceAtLeast(0f)
         levels[TriggerType.BACK_DOUBLE_KNOCK] = impulse
         levels[TriggerType.BACK_TRIPLE_KNOCK] = impulse
         if (needsHighRate) {
-            val count = knock.onSample(impulse, stillness < STILL_LIMIT, nowMs)
+            val count = knock.onSample(zNorm, stillness < STILL_LIMIT, nowMs)
             when (count) {
                 2 -> if (TriggerType.BACK_DOUBLE_KNOCK in active) fired += TriggerType.BACK_DOUBLE_KNOCK
                 3 -> if (TriggerType.BACK_TRIPLE_KNOCK in active) fired += TriggerType.BACK_TRIPLE_KNOCK
@@ -208,11 +218,24 @@ class ShakeDetector(var threshold: Float, cooldownMs: Long) {
     }
 }
 
-/** Counts sharp impulses into knock sequences. Returns the knock count when a sequence ends. */
+/**
+ * Counts knocks on the back of the phone into sequences and returns the count when one ends.
+ *
+ * Each impact is classified from a short window of the (normalised, signed) Z acceleration:
+ * - A knock on the back pushes the phone towards the user and rings in both directions, so its
+ *   positive peak is large and comparable to its negative peak.
+ * - A tap on the screen pushes the phone away: a large negative peak with a small positive one.
+ * Calibrated from recordings on a Galaxy S23+ (knocks +7..+10 m/s², taps -5..-14 m/s²).
+ */
 class KnockDetector(var threshold: Float, cooldownMs: Long) {
-    private val sequence = PulseSequence(minGapMs = 90, maxGapMs = 450)
+    private val sequence = PulseSequence(minGapMs = 120, maxGapMs = 500)
     private val cooldown = Cooldown(cooldownMs)
-    private var above = false
+
+    private var eventStartMs: Long? = null
+    private var eventStill = false
+    private var positivePeak = 0f
+    private var negativePeak = 0f
+    private var rearmed = true
 
     var cooldownMs: Long
         get() = cooldown.durationMs
@@ -220,12 +243,28 @@ class KnockDetector(var threshold: Float, cooldownMs: Long) {
             cooldown.durationMs = value
         }
 
-    fun onSample(impulse: Float, wasStill: Boolean, nowMs: Long): Int? {
-        if (impulse >= threshold && !above) {
-            above = true
-            if (wasStill || sequence.pending > 0) sequence.pulse(nowMs)
-        } else if (impulse < threshold * 0.5f) {
-            above = false
+    /** [z] is signed Z acceleration normalised to the knock full scale (±1). */
+    fun onSample(z: Float, wasStill: Boolean, nowMs: Long): Int? {
+        val start = eventStartMs
+        val trigger = minOf(threshold, ONSET)
+        if (start == null) {
+            if (!rearmed) {
+                if (kotlin.math.abs(z) < trigger * 0.5f) rearmed = true
+            } else if (kotlin.math.abs(z) >= trigger) {
+                eventStartMs = nowMs
+                eventStill = wasStill
+                positivePeak = maxOf(0f, z)
+                negativePeak = minOf(0f, z)
+            }
+        } else {
+            positivePeak = maxOf(positivePeak, z)
+            negativePeak = minOf(negativePeak, z)
+            if (nowMs - start >= EVENT_MS) {
+                eventStartMs = null
+                rearmed = false
+                val isKnock = positivePeak >= threshold && positivePeak >= -negativePeak * SYMMETRY
+                if (isKnock && (eventStill || sequence.pending > 0)) sequence.pulse(start)
+            }
         }
         val count = sequence.tick(nowMs) ?: return null
         return if (count in 2..3 && cooldown.tryFire(nowMs)) count else null
@@ -234,6 +273,18 @@ class KnockDetector(var threshold: Float, cooldownMs: Long) {
     fun reset() {
         sequence.reset()
         cooldown.reset()
-        above = false
+        eventStartMs = null
+        rearmed = true
+    }
+
+    private companion object {
+        /** Window that captures one impact including its ringing. */
+        const val EVENT_MS = 60L
+
+        /** |z| that opens an event window (0.25 = 2.5 m/s²). */
+        const val ONSET = 0.25f
+
+        /** Positive peak must be at least this fraction of the negative peak. */
+        const val SYMMETRY = 0.5f
     }
 }
